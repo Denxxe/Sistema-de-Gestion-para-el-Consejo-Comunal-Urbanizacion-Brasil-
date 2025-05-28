@@ -36,6 +36,7 @@
     </div>
 
 </body>
-<script src="/assets/js/bootstrap.bundle.min.js"></script>
-<script src="/assets/js/chart.min.js"></script>
+<script src="/public/assets/js/login.js" defer></script>
+<script src="../../public/assets/js/bootstrap.bundle.min.js"></script>
+<script src="../../public/assets/js/chart.min.js"></script>
 </html>
