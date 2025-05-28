@@ -1,0 +1,9 @@
+<?php
+    session_start();
+    if(isset($_SESSION['nombre_usuario'])){  
+        header('location:view/dashboard.php');
+        exit();
+    }else{
+        header('location:view/auth/login.php');
+        exit();
+    }
