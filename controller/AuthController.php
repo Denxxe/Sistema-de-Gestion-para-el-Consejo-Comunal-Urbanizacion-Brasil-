@@ -8,7 +8,7 @@ class AuthController
 {
     public function loginForm()
     {
-        include '../app/views/auth/login.php';
+        include '../view/auth/login.php';
     }
 
     public function login()
