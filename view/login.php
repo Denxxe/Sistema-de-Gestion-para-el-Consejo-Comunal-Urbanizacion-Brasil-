@@ -1,8 +1,8 @@
 <?php
-if(isset($_GET['error'])) {
-if($_GET['error'] == 1) {
+if(isset($_POST['error'])) {
+if($_POST['error'] == 1) {
 echo '<div class="alert alert-danger mt-3" role="alert">Credenciales incorrectas.</div>';
-} elseif ($_GET['error'] == 2) {
+} elseif ($_POST['error'] == 2) {
  echo '<div class="alert alert-warning mt-3" role="alert">Por favor, complete todos los campos.</div>';
 }
 }
