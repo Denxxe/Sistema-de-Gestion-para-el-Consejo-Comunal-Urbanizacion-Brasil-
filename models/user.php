@@ -1,6 +1,9 @@
 <?php
+namespace App\models;
 
-require_once __DIR__ . '/../config/Database.php';
+use PDO;
+use App\core\Database;
+
 class UserModel {
     private $db;
     private $id;
@@ -13,7 +16,7 @@ class UserModel {
 
     private $CreationAcount;
     public function __construct() {
-       $this->db = (new Database())->connect(); // Obtiene la instancia Singleton de PDO
+       $this->db = new Database()->connect(); // Obtiene la instancia Singleton de PDO
     }
 
     public function createUser($data) {
@@ -62,7 +65,7 @@ class UserModel {
     public function getUserById($id): mixed {
         $stmt = $this->db->prepare(query: "SELECT * FROM users WHERE id = :id");
         $stmt->execute(params: ['id' => $id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
     //Metodos set----------------------------------------------------------------------

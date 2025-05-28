@@ -1,20 +1,42 @@
 <?php
+namespace App\Controllers;
 
-class AuthController extends BaseController
+use App\models\UserModel;
+use App\Core\Database;
+
+class AuthController
 {
     public function loginForm()
     {
-        $this->render('auth/login');
+        include '../app/views/auth/login.php';
     }
 
     public function login()
     {
-        // Aquí iría la lógica de autenticación
-        if (isset($_POST['username']) && isset($_POST['password'])) {
-            // Validar credenciales
-            $_SESSION['user_id'] = 1; // Ejemplo simplificado
-            $this->redirect('/dashboard');
+        session_start();
+
+        $email = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        $db = (new Database())->connect();
+        $userModel = new UserModel();
+        $userModel->setName(name: $email);
+        $user = $userModel->getName();
+
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_email'] = $user['email'];
+            header('Location: /dashboard');
+        } else {
+            $_SESSION['error'] = 'Credenciales inválidas';
+            header('Location: /login');
         }
-        $this->redirect('/login');
+    }
+
+    public function logout()
+    {
+        session_start();
+        session_destroy();
+        header('Location: /login');
     }
 }
