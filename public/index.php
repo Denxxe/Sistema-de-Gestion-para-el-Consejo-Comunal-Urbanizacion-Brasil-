@@ -1,31 +1,27 @@
 <?php
-
 require_once '../vendor/autoload.php';
+
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
-require_once '../core/App.php';
 
-// Crear instancia del router
+require_once '../core/Router.php';
+
 $router = new Core\Router();
 
-// Middleware de ejemplo para autenticación
-$router->addMiddleware('auth', function() {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: /login');
-        return false;
-    }
-    return true;
+// Middleware (opcional)
+$router->addMiddleware('auth', function () {
+    return isset($_SESSION['user_id']);
 });
 
-// Definir rutas
+// Rutas públicas
 $router->get('/', ['HomeController', 'index']);
-$router->get('/login', ['AuthController', 'loginForm']);
-$router->post('/login', ['AuthController', 'login']);
+$router->get('/personas/crear', function () {
+    require_once '../view/personas/crear.php';
+});
+$router->post('/personas', ['PersonaController', 'crear']);
 
-// Rutas protegidas con middleware
+// Rutas protegidas (si decides usar auth)
 $router->get('/dashboard', ['DashboardController', 'index'], ['auth']);
-$router->get('/usuarios/{id}', ['UserController', 'show'], ['auth']);
 $router->post('/usuarios', ['UserController', 'store'], ['auth']);
 
-// Manejar la solicitud
 $router->handleRequest();

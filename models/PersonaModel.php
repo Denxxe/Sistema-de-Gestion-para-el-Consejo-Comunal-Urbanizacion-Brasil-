@@ -77,5 +77,83 @@ class PersonaModel {
         $this->nombres = $nombres;
     }
 
-    // ... (y así con todos los atributos)
+    public function getApellidos(): string {
+        return $this->apellidos;
+    }
+
+    public function setApellidos(string $apellidos): void {
+        $this->apellidos = $apellidos;
+    }
+
+    public function getTelefono(): ?string {
+        return $this->telefono;
+    }
+
+    public function setTelefono(?string $telefono): void {
+        $this->telefono = $telefono;
+    }
+
+    public function getCorreo(): ?string {
+        return $this->correo;
+    }
+
+    public function setCorreo(?string $correo): void {
+        $this->correo = $correo;
+    }
+
+    public function getDireccion(): ?string {
+        return $this->direccion;
+    }
+
+    public function setDireccion(?string $direccion): void {
+        $this->direccion = $direccion;
+    }
+
+    public function getSexo(): ?string {
+        return $this->sexo;
+    }
+
+    public function setSexo(?string $sexo): void {
+        $this->sexo = $sexo;
+    }
+
+    public function getEstado(): ?string {
+        return $this->estado;
+    }
+
+    public function setEstado(?string $estado): void {
+        $this->estado = $estado;
+    }
+
+    public function getFecha_nacimiento(): ?string {
+        return $this->fecha_nacimiento;
+    }
+
+    public function setFecha_nacimiento(?string $fecha_nacimiento): void {
+        $this->fecha_nacimiento = $fecha_nacimiento;
+    }
+
+    public function getActivo(): bool {
+        return $this->activo;
+    }
+
+    public function setActivo(bool $activo): void {
+        $this->activo = $activo;
+    }
+
+    public function getFecha_registro(): string {
+        return $this->fecha_registro;
+    }
+
+    public function setFecha_registro(string $fecha_registro): void {
+        $this->fecha_registro = $fecha_registro;
+    }
+
+    public function getFecha_actualizacion(): string {
+        return $this->fecha_actualizacion;
+    }
+
+    public function setFecha_actualizacion(string $fecha_actualizacion): void {
+        $this->fecha_actualizacion = $fecha_actualizacion;
+    }
 }

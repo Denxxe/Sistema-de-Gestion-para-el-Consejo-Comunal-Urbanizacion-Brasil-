@@ -1,9 +1,9 @@
 <?php
 namespace Models;
 
-use Core\Database;
 use PDO;
-
+use App\core\Database;
+use PDOException;
 class UsuarioModel {
     private PDO $db;
 
@@ -17,7 +17,8 @@ class UsuarioModel {
     private string $fecha_actualizacion;
 
     public function __construct() {
-        $this->db = Database::getConnection();
+        $this->db = new Database()->connect();
+        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
     public function getId_usuario(): int {

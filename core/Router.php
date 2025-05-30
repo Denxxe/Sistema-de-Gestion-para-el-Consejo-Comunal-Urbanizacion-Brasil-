@@ -5,7 +5,7 @@ class Router
 {
     private array $routes = [];
     private array $middleware = [];
-    private string $namespace = 'App\\Controllers\\';
+    private string $namespace = 'Controllers\\'; // Ajustado según tu estructura
 
     public function add(string $method, string $pattern, $handler, array $middleware = []): void
     {
@@ -39,7 +39,7 @@ class Router
                 continue;
             }
 
-            $pattern = preg_replace('/\{([^}]+)\}/', '(?P<\\1>[^/]+)', $route['pattern']);
+            $pattern = preg_replace('/\{([^}]+)\}/', '(?P<\1>[^/]+)', $route['pattern']);
             $pattern = '#^' . $pattern . '$#';
 
             if (preg_match($pattern, $uri, $matches)) {
@@ -62,14 +62,13 @@ class Router
 
         if (!$match) {
             http_response_code(404);
-            echo "Página no encontrada";
+            echo json_encode(["statusCode" => 404, "message" => "Ruta no encontrada"]);
             return;
         }
 
         $route = $match['route'];
         $params = $match['params'];
 
-        // Ejecutar middleware
         foreach ($route['middleware'] as $middlewareName) {
             if (isset($this->middleware[$middlewareName])) {
                 $response = call_user_func($this->middleware[$middlewareName]);
@@ -79,7 +78,6 @@ class Router
             }
         }
 
-        // Manejar el controlador
         if (is_array($route['handler'])) {
             [$controller, $method] = $route['handler'];
             $controllerClass = $this->namespace . $controller;
@@ -93,7 +91,10 @@ class Router
                 throw new \RuntimeException("Method {$method} not found in controller {$controllerClass}");
             }
 
-            call_user_func_array([$controller, $method], $params);
+            $inputData = file_get_contents("php://input");
+            $body = json_decode($inputData, true) ?? $_POST;
+
+            call_user_func_array([$controller, $method], array_merge([$body], $params));
         } elseif (is_callable($route['handler'])) {
             call_user_func_array($route['handler'], $params);
         }
