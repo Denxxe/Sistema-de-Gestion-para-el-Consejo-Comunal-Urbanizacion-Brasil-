@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión</title>
-    <link rel="stylesheet" href="../../public/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href= "assets/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
     <div class="container mt-5">
@@ -37,6 +37,6 @@
 
 </body>
 <script src="/public/assets/js/login.js" defer></script>
-<script src="../../public/assets/js/bootstrap.bundle.min.js"></script>
-<script src="../../public/assets/js/chart.min.js"></script>
+<script src="assets/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/Chart.js"></script>
 </html>

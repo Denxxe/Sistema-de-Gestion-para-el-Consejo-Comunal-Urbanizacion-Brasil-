@@ -55,7 +55,15 @@ class Router
     public function handleRequest(): void
     {
         $method = $_SERVER['REQUEST_METHOD'];
-        $uri = isset($_GET['url']) ? '/' . rtrim($_GET['url'], '/') : '/';
+        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        
+        // Eliminar el directorio base del proyecto de la URI
+        $baseDir = '/Sistema-de-Gestion-para-el-Consejo-Comunal-Urbanizacion-Brasil-/public';
+        if (strpos($uri, $baseDir) === 0) {
+            $uri = substr($uri, strlen($baseDir));
+        }
+        
+        $uri = $uri ?: '/';
         $uri = filter_var($uri, FILTER_SANITIZE_URL);
 
         $match = $this->matchRoute($method, $uri);

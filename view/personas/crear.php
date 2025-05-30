@@ -79,7 +79,7 @@
     };
 
     try {
-      const response = await fetch('personas', {
+      const response = await fetch('/Sistema-de-Gestion-para-el-Consejo-Comunal-Urbanizacion-Brasil-/public/personas', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

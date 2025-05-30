@@ -4,6 +4,6 @@
         header('location:view/users/dashboard.php');
         exit();
     }else{
-        header('location:view/auth/login.php');
+        header('location:public');
         exit();
     }
