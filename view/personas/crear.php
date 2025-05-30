@@ -79,7 +79,7 @@
     };
 
     try {
-      const response = await fetch('/personas', {
+      const response = await fetch('personas', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -90,10 +90,24 @@
 
       const resultado = await response.json();
       const mensajeDiv = document.getElementById('mensaje');
+      
+      if (!response.ok) {
+        mensajeDiv.innerHTML = `
+          <div class="alert alert-danger">
+            ${resultado.message || 'Error al procesar la solicitud'}
+          </div>`;
+        return;
+      }
+
       mensajeDiv.innerHTML = `
-        <div class="alert alert-${resultado.statusCode === 201 ? 'success' : 'danger'}">
+        <div class="alert alert-success">
           ${resultado.message}
         </div>`;
+      
+      // Limpiar el formulario si la creación fue exitosa
+      if (response.status === 201) {
+        document.getElementById('personaForm').reset();
+      }
     } catch (error) {
       console.error("Error en fetch:", error);
     }

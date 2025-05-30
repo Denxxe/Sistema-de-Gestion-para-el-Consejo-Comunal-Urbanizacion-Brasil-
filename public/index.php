@@ -14,7 +14,12 @@ $router->addMiddleware('auth', function () {
 });
 
 // Rutas públicas
-$router->get('/', ['HomeController', 'index']);
+$router->get('/', function () {
+    require_once '../view/auth/login.php';
+});
+$router->get('/login', function () {
+    require_once '../view/auth/login.php';
+});
 $router->get('/personas/crear', function () {
     require_once '../view/personas/crear.php';
 });

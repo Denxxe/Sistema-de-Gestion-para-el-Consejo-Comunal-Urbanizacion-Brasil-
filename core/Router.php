@@ -5,7 +5,7 @@ class Router
 {
     private array $routes = [];
     private array $middleware = [];
-    private string $namespace = 'Controllers\\'; // Ajustado según tu estructura
+    private string $namespace = 'App\\controllers\\'; // Ajustado según tu estructura
 
     public function add(string $method, string $pattern, $handler, array $middleware = []): void
     {
