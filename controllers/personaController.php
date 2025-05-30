@@ -1,7 +1,7 @@
 <?php
 namespace App\controllers;
 
-use models\PersonaModel;
+use App\models\PersonaModel;
 use Core\Response;
 
 class PersonaController {
