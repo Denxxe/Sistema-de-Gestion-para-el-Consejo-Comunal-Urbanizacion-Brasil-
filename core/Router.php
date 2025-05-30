@@ -1,5 +1,5 @@
 <?php
-namespace Core;
+namespace App\Core;
 
 class Router
 {
@@ -104,9 +104,17 @@ class Router
             $inputData = file_get_contents("php://input");
             $body = json_decode($inputData, true) ?? $_POST;
 
-            call_user_func_array([$controller, $method], array_merge([$body], $params));
+            $result = call_user_func_array([$controller, $method], array_merge([$body], $params));
+            if ($result !== null) {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode($result, JSON_UNESCAPED_UNICODE);
+            }
         } elseif (is_callable($route['handler'])) {
-            call_user_func_array($route['handler'], $params);
+            $result = call_user_func_array($route['handler'], $params);
+            if ($result !== null) {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode($result, JSON_UNESCAPED_UNICODE);
+            }
         }
     }
 }

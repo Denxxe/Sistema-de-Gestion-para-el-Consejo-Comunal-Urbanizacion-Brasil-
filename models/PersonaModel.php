@@ -24,15 +24,17 @@ class PersonaModel {
     private string $fecha_actualizacion;
 
     public function __construct() {
-        $this->db = new Database()->connect();
+        $database = new Database();
+        $this->db = $database->connect();
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
     // Métodos CRUD aquí...
-    public function crear() {
-        try{
-            $sql = "INSERT INTO persona (cedula, nombres, apellidos, fecha_nacimiento, sexo, telefono, direccion, correo, estado,fecha_registro, fecha_actualizacion)
-                    VALUES (:cedula, :nombres, :apellidos, :fecha_nacimiento, :sexo, :telefono, :direccion, :correo, :estado, :fecha_registro, :fecha_actualizacion)";
+    public function crear(): bool {
+        try {
+            $sql = "INSERT INTO persona (cedula, nombres, apellidos, fecha_nacimiento, sexo, telefono, direccion, correo, estado, fecha_registro, fecha_actualizacion)
+                    VALUES (:cedula, :nombres, :apellidos, :fecha_nacimiento, :sexo, :telefono, :direccion, :correo, :estado, :fecha_registro, :fecha_actualizacion)
+                    RETURNING id_persona";
             
             $stmt = $this->db->prepare($sql);
 
@@ -53,10 +55,17 @@ class PersonaModel {
             $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
         
             $stmt->execute();
-
-            return $stmt->rowCount() > 0;
-        }catch( PDOException $e){
-            echo "Error al crear  una persona: " . $e->getMessage();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result && isset($result['id_persona'])) {
+                $this->id_persona = $result['id_persona'];
+                return true;
+            }
+            
+            return false;
+        } catch (PDOException $e) {
+            error_log("Error al crear persona: " . $e->getMessage());
+            throw $e;
         }
     }
     

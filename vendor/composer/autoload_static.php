@@ -31,14 +31,11 @@ class ComposerStaticInite875ae8441d070d7dda5f4b47a2117aa
         array (
             'Dotenv\\' => 7,
         ),
-        'C' => 
-        array (
-            'Core\\' => 5,
-        ),
         'A' => 
         array (
             'App\\models\\' => 11,
             'App\\controllers\\' => 16,
+            'App\\Core\\' => 9,
         ),
     );
 
@@ -67,10 +64,6 @@ class ComposerStaticInite875ae8441d070d7dda5f4b47a2117aa
         array (
             0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
         ),
-        'Core\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/core',
-        ),
         'App\\models\\' => 
         array (
             0 => __DIR__ . '/../..' . '/models',
@@ -78,6 +71,10 @@ class ComposerStaticInite875ae8441d070d7dda5f4b47a2117aa
         'App\\controllers\\' => 
         array (
             0 => __DIR__ . '/../..' . '/controllers',
+        ),
+        'App\\Core\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/core',
         ),
     );
 

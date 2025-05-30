@@ -2,7 +2,7 @@
 namespace App\controllers;
 
 use App\models\PersonaModel;
-use Core\Response;
+use App\Core\Response;
 
 class PersonaController {
     public function crear($datos = null): array {
@@ -33,7 +33,18 @@ class PersonaController {
             $persona->setEstado($datos['estado'] ?? null);
 
             if ($persona->crear()) {
-                return Response::response201('Persona creada exitosamente');
+                $datos_persona = [
+                    'cedula' => $persona->getCedula(),
+                    'nombres' => $persona->getNombres(),
+                    'apellidos' => $persona->getApellidos(),
+                    'fecha_nacimiento' => $persona->getFecha_nacimiento(),
+                    'sexo' => $persona->getSexo(),
+                    'telefono' => $persona->getTelefono(),
+                    'direccion' => $persona->getDireccion(),
+                    'correo' => $persona->getCorreo(),
+                    'estado' => $persona->getEstado()
+                ];
+                return Response::response201('Persona creada exitosamente', $datos_persona);
             } else {
                 return Response::response500('No se pudo crear la persona');
             }

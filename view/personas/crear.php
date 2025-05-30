@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Crear Persona</title>
   <link rel="stylesheet" href="../../public/assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
 
@@ -57,59 +58,141 @@
         <button type="submit" class="btn btn-success">Crear Persona</button>
       </form>
       <div id="mensaje" class="mt-3"></div>
+      <div id="respuesta" class="mt-3"></div>
     </div>
   </div>
 </div>
 
 <script src="../../public/assets/js/bootstrap.bundle.min.js"></script>
 <script>
-  document.getElementById('personaForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+function copiarDatos(datos) {
+  const texto = Object.entries(datos)
+    .map(([key, value]) => `${key}: ${value || 'No especificado'}`)
+    .join('\n');
 
-    const data = {
-      cedula: document.getElementById('cedula').value,
-      nombres: document.getElementById('nombres').value,
-      apellidos: document.getElementById('apellidos').value,
-      fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
-      sexo: document.getElementById('sexo').value,
-      telefono: document.getElementById('telefono').value,
-      direccion: document.getElementById('direccion').value,
-      correo: document.getElementById('correo').value,
-      estado: document.getElementById('estado').value
-    };
+  navigator.clipboard.writeText(texto)
+    .then(() => {
+      alert('Datos copiados al portapapeles');
+    })
+    .catch(err => {
+      console.error('Error al copiar:', err);
+      alert('Error al copiar los datos');
+    });
+}
 
-    try {
-      const response = await fetch('/Sistema-de-Gestion-para-el-Consejo-Comunal-Urbanizacion-Brasil-/public/personas', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
+document.getElementById('personaForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
 
+  const data = {
+    cedula: document.getElementById('cedula').value,
+    nombres: document.getElementById('nombres').value,
+    apellidos: document.getElementById('apellidos').value,
+    fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
+    sexo: document.getElementById('sexo').value,
+    telefono: document.getElementById('telefono').value,
+    direccion: document.getElementById('direccion').value,
+    correo: document.getElementById('correo').value,
+    estado: document.getElementById('estado').value
+  };
 
-      const resultado = await response.json();
-      const mensajeDiv = document.getElementById('mensaje');
-      
-      if (!response.ok) {
-        mensajeDiv.innerHTML = `
-          <div class="alert alert-danger">
-            ${resultado.message || 'Error al procesar la solicitud'}
-          </div>`;
-        return;
-      }
+  try {
+    // Mostrar spinner mientras se procesa
+    const mensajeDiv = document.getElementById('mensaje');
+    const respuestaDiv = document.getElementById('respuesta');
+    mensajeDiv.innerHTML = `
+      <div class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>`;
 
-      mensajeDiv.innerHTML = `
-        <div class="alert alert-success">
-          ${resultado.message}
+    const response = await fetch('/Sistema-de-Gestion-para-el-Consejo-Comunal-Urbanizacion-Brasil-/public/personas', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    const resultado = await response.json();
+    const alertClass = response.ok ? 'alert-success' : 'alert-danger';
+    
+    // Mostrar mensaje de éxito/error
+    mensajeDiv.innerHTML = `
+      <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+        ${resultado.message || 'Error al procesar la solicitud'}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+    
+    // Si hay datos, mostrarlos en una tabla bonita
+    if (response.ok && resultado.data) {
+      respuestaDiv.innerHTML = `
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Detalles de la Persona</h5>
+            <button type="button" class="btn btn-outline-light btn-sm" onclick='copiarDatos(${JSON.stringify(resultado.data)})'>
+              <i class="bi bi-clipboard"></i> Copiar Datos
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <tbody>
+                  <tr>
+                    <th style="width: 200px">Cédula:</th>
+                    <td>${resultado.data.cedula}</td>
+                  </tr>
+                  <tr>
+                    <th>Nombres:</th>
+                    <td>${resultado.data.nombres}</td>
+                  </tr>
+                  <tr>
+                    <th>Apellidos:</th>
+                    <td>${resultado.data.apellidos}</td>
+                  </tr>
+                  <tr>
+                    <th>Fecha de Nacimiento:</th>
+                    <td>${resultado.data.fecha_nacimiento || '<span class="text-muted">No especificado</span>'}</td>
+                  </tr>
+                  <tr>
+                    <th>Sexo:</th>
+                    <td>${resultado.data.sexo || '<span class="text-muted">No especificado</span>'}</td>
+                  </tr>
+                  <tr>
+                    <th>Teléfono:</th>
+                    <td>${resultado.data.telefono || '<span class="text-muted">No especificado</span>'}</td>
+                  </tr>
+                  <tr>
+                    <th>Dirección:</th>
+                    <td>${resultado.data.direccion || '<span class="text-muted">No especificado</span>'}</td>
+                  </tr>
+                  <tr>
+                    <th>Correo:</th>
+                    <td>${resultado.data.correo || '<span class="text-muted">No especificado</span>'}</td>
+                  </tr>
+                  <tr>
+                    <th>Estado:</th>
+                    <td>${resultado.data.estado || '<span class="text-muted">No especificado</span>'}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>`;
-      
+
       // Limpiar el formulario si la creación fue exitosa
-      if (response.status === 201) {
-        document.getElementById('personaForm').reset();
-      }
+      document.getElementById('personaForm').reset();
+    } else {
+      respuestaDiv.innerHTML = '';
+    }
     } catch (error) {
-      console.error("Error en fetch:", error);
+      console.error('Error en fetch:', error);
+      const mensajeDiv = document.getElementById('mensaje');
+      mensajeDiv.innerHTML = `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          Error al procesar la solicitud: ${error.message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
     }
   });
 </script>

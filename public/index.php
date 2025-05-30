@@ -7,7 +7,7 @@ $dotenv->load();
 require_once '../core/Router.php';
 require_once '../controllers/personaController.php';
 
-$router = new Core\Router();
+$router = new App\Core\Router();
 
 // Middleware (opcional)
 $router->addMiddleware('auth', function () {
