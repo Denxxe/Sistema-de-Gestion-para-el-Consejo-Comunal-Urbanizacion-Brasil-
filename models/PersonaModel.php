@@ -1,8 +1,8 @@
 <?php
-namespace Models;
+namespace models;
 
 use PDO;
-use App\core\Database;
+use App\Core\Database;
 use PDOException;
 
 class PersonaModel {

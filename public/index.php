@@ -33,7 +33,7 @@ $router->get('/login', function () {
 $router->get('/personas/crear', function () {
     require_once '../view/personas/crear.php';
 });
-$router->post('/personas', [new \App\controllers\PersonaController(), 'crear']);
+$router->post('/personas', ['PersonaController', 'crear']);
 
 // Rutas protegidas (si decides usar auth)
 $router->get('/dashboard', ['DashboardController', 'index'], ['auth']);

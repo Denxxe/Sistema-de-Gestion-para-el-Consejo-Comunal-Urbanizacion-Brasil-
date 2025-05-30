@@ -88,15 +88,17 @@ class Router
 
         if (is_array($route['handler'])) {
             [$controller, $method] = $route['handler'];
-            $controllerClass = $this->namespace . $controller;
-
-            if (!class_exists($controllerClass)) {
-                throw new \RuntimeException("Controller {$controllerClass} not found");
+            
+            if (is_string($controller)) {
+                $controllerClass = $this->namespace . $controller;
+                if (!class_exists($controllerClass)) {
+                    throw new \RuntimeException("Controller {$controllerClass} not found");
+                }
+                $controller = new $controllerClass();
             }
 
-            $controller = new $controllerClass();
             if (!method_exists($controller, $method)) {
-                throw new \RuntimeException("Method {$method} not found in controller {$controllerClass}");
+                throw new \RuntimeException("Method {$method} not found in controller class");
             }
 
             $inputData = file_get_contents("php://input");
