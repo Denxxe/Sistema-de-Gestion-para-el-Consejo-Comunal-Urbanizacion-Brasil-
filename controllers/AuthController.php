@@ -1,5 +1,5 @@
 <?php
-namespace App\Controllers;
+namespace App\controllers;
 
 use App\models\AuthModel;
 use Exception;

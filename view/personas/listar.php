@@ -1,6 +1,11 @@
 <?php
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use App\controllers\PersonaController;
+
+
 // Obtener el controlador
-$personaController = new App\controllers\PersonaController();
+$personaController = new PersonaController();
 
 // Obtener todas las personas
 $respuesta = $personaController->listar();
@@ -48,10 +53,10 @@ require_once __DIR__ . '/../plantilla/header.php';
                         <td><?= htmlspecialchars($persona['estado'] ?? '-') ?></td>
                         <td>
                             <div class="btn-group">
-                                <a href="/persona/actualizar/<?= htmlspecialchars($persona['id_persona'] ?? '') ?>" class="btn btn-sm btn-primary">
+                                <a href="/personas/editar/<?= htmlspecialchars($persona['id_persona'] ?? '') ?>" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="/persona/eliminar/<?= htmlspecialchars($persona['id_persona'] ?? '') ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta persona?')">
+                                <a href="/personas/eliminar/<?= htmlspecialchars($persona['id_persona'] ?? '') ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta persona?')">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </div>
