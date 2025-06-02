@@ -4,17 +4,17 @@ namespace App\models;
 use PDO;
 use App\Core\Database;
 use PDOException;
-use Exception;
 
-class UsuarioModel {
+class ViviendaModel {
     private PDO $db;
 
-    //Atributos 
-    private int $id_usuario;
-    private int $id_persona;
-    private int $id_rol;
-    private string $contrasena;
-    private ?string $estado;
+    // Atributos
+    private int $id_vivienda;
+    private string $direccion;
+    private string $numero;
+    private string $tipo;
+    private string $sector;
+    private ?string $estado = null;
     private bool $activo = true;
     private string $fecha_registro;
     private string $fecha_actualizacion;
@@ -24,11 +24,11 @@ class UsuarioModel {
         $this->db = $database->connect();
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
-    
+
     // Métodos CRUD
     public function listar(array $filtros = []): array {
         try {
-            $sql = "SELECT * FROM usuario WHERE activo = true";
+            $sql = "SELECT * FROM vivienda WHERE activo = true";
             $params = [];
 
             if (!empty($filtros)) {
@@ -51,136 +51,147 @@ class UsuarioModel {
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error al listar usuarios: " . $e->getMessage());
+            error_log("Error al listar viviendas: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function obtenerPorId(int $id): ?array {
         try {
-            $sql = "SELECT * FROM usuario WHERE id_usuario = :id AND activo = true";
+            $sql = "SELECT * FROM vivienda WHERE id_vivienda = :id AND activo = true";
             $stmt = $this->db->prepare($sql);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error al obtener usuario: " . $e->getMessage());
+            error_log("Error al obtener vivienda: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function crear(): bool {
         try {
-            $sql = "INSERT INTO usuario (id_persona, id_rol, contrasena, estado, fecha_registro)
-                    VALUES (:id_persona, :id_rol, :contrasena, :estado, :fecha_registro)
-                    RETURNING id_usuario";
+            $sql = "INSERT INTO vivienda (direccion, numero, tipo, sector, estado, fecha_registro, fecha_actualizacion)
+                    VALUES (:direccion, :numero, :tipo, :sector, :estado, :fecha_registro, :fecha_actualizacion)
+                    RETURNING id_vivienda";
             
             $stmt = $this->db->prepare($sql);
 
             $ahora = date('Y-m-d H:i:s');
             $this->fecha_registro = $ahora;
+            $this->fecha_actualizacion = $ahora;
         
-            $stmt->bindValue(':id_persona', $this->id_persona);
-            $stmt->bindValue(':id_rol', $this->id_rol);
-            $stmt->bindValue(':contrasena', password_hash($this->contrasena, PASSWORD_BCRYPT));
+            $stmt->bindValue(':direccion', $this->direccion);
+            $stmt->bindValue(':numero', $this->numero);
+            $stmt->bindValue(':tipo', $this->tipo);
+            $stmt->bindValue(':sector', $this->sector);
             $stmt->bindValue(':estado', $this->estado);
             $stmt->bindValue(':fecha_registro', $this->fecha_registro);
+            $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
         
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            if ($result && isset($result['id_usuario'])) {
-                $this->id_usuario = $result['id_usuario'];
+            if ($result && isset($result['id_vivienda'])) {
+                $this->id_vivienda = $result['id_vivienda'];
                 return true;
             }
             
             return false;
         } catch (PDOException $e) {
-            error_log("Error al crear usuario: " . $e->getMessage());
+            error_log("Error al crear la vivienda: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function actualizar(): bool {
         try {
-            $sql = "UPDATE usuario SET 
-                    id_persona = :id_persona,
-                    id_rol = :id_rol,
-                    contrasena = :contrasena,
+            $sql = "UPDATE vivienda SET 
+                    direccion = :direccion,
+                    numero = :numero,
+                    tipo = :tipo,
+                    sector = :sector,
                     estado = :estado
-                    WHERE id_usuario = :id_usuario AND activo = true
-                    RETURNING id_usuario";
+                    WHERE id_vivienda = :id_vivienda AND activo = true
+                    RETURNING id_vivienda";
             
             $stmt = $this->db->prepare($sql);
             
-            $stmt->bindValue(':id_persona', $this->id_persona);
-            $stmt->bindValue(':id_rol', $this->id_rol);
-            $stmt->bindValue(':contrasena', password_hash($this->contrasena, PASSWORD_BCRYPT));
+            $stmt->bindValue(':direccion', $this->direccion);
+            $stmt->bindValue(':numero', $this->numero);
+            $stmt->bindValue(':tipo', $this->tipo);
+            $stmt->bindValue(':sector', $this->sector);
             $stmt->bindValue(':estado', $this->estado);
-            $stmt->bindValue(':id_usuario', $this->id_usuario);
+            $stmt->bindValue(':id_vivienda', $this->id_vivienda);
             
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
             return $result !== false;
         } catch (PDOException $e) {
-            error_log("Error al actualizar usuario: " . $e->getMessage());
+            error_log("Error al actualizar vivienda: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function eliminar(): bool {
         try {
-            $sql = "UPDATE usuario SET activo = false
-                    WHERE id_usuario = :id_usuario AND activo = true
-                    RETURNING id_usuario";
+            $sql = "UPDATE vivienda SET activo = false
+                    WHERE id_vivienda = :id_vivienda AND activo = true
+                    RETURNING id_vivienda";
 
             $stmt = $this->db->prepare($sql);
-            $stmt->bindValue(':id_usuario', $this->id_usuario);
+            $stmt->bindValue(':id_vivienda', $this->id_vivienda);
             
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
             return $result !== false;
         } catch (PDOException $e) {
-            error_log("Error al eliminar usuario: " . $e->getMessage());
+            error_log("Error al eliminar vivienda: " . $e->getMessage());
             throw $e;
         }
     }
 
-    // Getters y setters
-    public function getId_usuario(): int {
-        return $this->id_usuario;
+    // Getters y Setters
+    public function getId_vivienda(): int {
+        return $this->id_vivienda;
     }
 
-    public function setId_usuario(int $id_usuario): void {
-        $this->id_usuario = $id_usuario;
+    public function setId_vivienda(int $id_vivienda): void {
+        $this->id_vivienda = $id_vivienda;
     }
 
-    public function getId_persona(): int {
-        return $this->id_persona;
+    public function getDireccion(): string {
+        return $this->direccion;
     }
 
-    public function setId_persona(int $id_persona): void {
-        $this->id_persona = $id_persona;
+    public function setDireccion(string $direccion): void {
+        $this->direccion = $direccion;
     }
 
-    public function getId_rol(): int {
-        return $this->id_rol;
+    public function getNumero(): string {
+        return $this->numero;
     }
 
-    public function setId_rol(int $id_rol): void {
-        $this->id_rol = $id_rol;
+    public function setNumero(string $numero): void {
+        $this->numero = $numero;
     }
 
-    public function getContrasena(): string {
-        return $this->contrasena;
+    public function getTipo(): string {
+        return $this->tipo;
     }
 
-    public function setContrasena(string $contrasena): void {
-        $auth = new AuthModel();
-        $auth->validatePassword($contrasena);
-        $this->contrasena = $contrasena;
+    public function setTipo(string $tipo): void {
+        $this->tipo = $tipo;
+    }
+
+    public function getSector(): string {
+        return $this->sector;
+    }
+
+    public function setSector(string $sector): void {
+        $this->sector = $sector;
     }
 
     public function getEstado(): ?string {
@@ -214,5 +225,4 @@ class UsuarioModel {
     public function setFecha_actualizacion(string $fecha_actualizacion): void {
         $this->fecha_actualizacion = $fecha_actualizacion;
     }
-
 }

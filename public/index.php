@@ -33,7 +33,15 @@ $router->get('/login', function () {
 $router->get('/personas/crear', function () {
     require_once '../view/personas/crear.php';
 });
+$router->get('/personas', function () {
+    require_once '../view/personas/listar.php';
+});
+$router->get('/personas/actualizar/:id', function ($id) {
+    require_once '../view/personas/actualizar.php';
+});
 $router->post('/personas', ['PersonaController', 'crear']);
+$router->put('/personas/:id', ['PersonaController', 'actualizar']);
+$router->delete('/personas/:id', ['PersonaController', 'eliminar']);
 
 // Rutas protegidas (si decides usar auth)
 $router->get('/dashboard', ['DashboardController', 'index'], ['auth']);

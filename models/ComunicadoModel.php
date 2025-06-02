@@ -4,17 +4,17 @@ namespace App\models;
 use PDO;
 use App\Core\Database;
 use PDOException;
-use Exception;
 
-class UsuarioModel {
+class ComunicadoModel {
     private PDO $db;
 
-    //Atributos 
+    // Atributos
+    private int $id_comunicado;
     private int $id_usuario;
-    private int $id_persona;
-    private int $id_rol;
-    private string $contrasena;
-    private ?string $estado;
+    private string $titulo;
+    private string $contenido;
+    private string $fecha_publicacion;
+    private string $estado;
     private bool $activo = true;
     private string $fecha_registro;
     private string $fecha_actualizacion;
@@ -24,11 +24,11 @@ class UsuarioModel {
         $this->db = $database->connect();
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
-    
+
     // Métodos CRUD
     public function listar(array $filtros = []): array {
         try {
-            $sql = "SELECT * FROM usuario WHERE activo = true";
+            $sql = "SELECT * FROM comunicado WHERE activo = true";
             $params = [];
 
             if (!empty($filtros)) {
@@ -51,104 +51,115 @@ class UsuarioModel {
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error al listar usuarios: " . $e->getMessage());
+            error_log("Error al listar comunicados: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function obtenerPorId(int $id): ?array {
         try {
-            $sql = "SELECT * FROM usuario WHERE id_usuario = :id AND activo = true";
+            $sql = "SELECT * FROM comunicado WHERE id_comunicado = :id AND activo = true";
             $stmt = $this->db->prepare($sql);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error al obtener usuario: " . $e->getMessage());
+            error_log("Error al obtener comunicado: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function crear(): bool {
         try {
-            $sql = "INSERT INTO usuario (id_persona, id_rol, contrasena, estado, fecha_registro)
-                    VALUES (:id_persona, :id_rol, :contrasena, :estado, :fecha_registro)
-                    RETURNING id_usuario";
+            $sql = "INSERT INTO comunicado (id_usuario, titulo, contenido, fecha_publicacion, estado, fecha_registro)
+                    VALUES (:id_usuario, :titulo, :contenido, :fecha_publicacion, :estado, :fecha_registro)
+                    RETURNING id_comunicado";
             
             $stmt = $this->db->prepare($sql);
 
             $ahora = date('Y-m-d H:i:s');
             $this->fecha_registro = $ahora;
         
-            $stmt->bindValue(':id_persona', $this->id_persona);
-            $stmt->bindValue(':id_rol', $this->id_rol);
-            $stmt->bindValue(':contrasena', password_hash($this->contrasena, PASSWORD_BCRYPT));
+            $stmt->bindValue(':id_usuario', $this->id_usuario);
+            $stmt->bindValue(':titulo', $this->titulo);
+            $stmt->bindValue(':contenido', $this->contenido);
+            $stmt->bindValue(':fecha_publicacion', $this->fecha_publicacion);
             $stmt->bindValue(':estado', $this->estado);
             $stmt->bindValue(':fecha_registro', $this->fecha_registro);
         
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            if ($result && isset($result['id_usuario'])) {
-                $this->id_usuario = $result['id_usuario'];
+            if ($result && isset($result['id_comunicado'])) {
+                $this->id_comunicado = $result['id_comunicado'];
                 return true;
             }
             
             return false;
         } catch (PDOException $e) {
-            error_log("Error al crear usuario: " . $e->getMessage());
+            error_log("Error al crear el comunicado: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function actualizar(): bool {
         try {
-            $sql = "UPDATE usuario SET 
-                    id_persona = :id_persona,
-                    id_rol = :id_rol,
-                    contrasena = :contrasena,
+            $sql = "UPDATE comunicado SET 
+                    id_usuario = :id_usuario,
+                    titulo = :titulo,
+                    contenido = :contenido,
+                    fecha_publicacion = :fecha_publicacion,
                     estado = :estado
-                    WHERE id_usuario = :id_usuario AND activo = true
-                    RETURNING id_usuario";
+                    WHERE id_comunicado = :id_comunicado AND activo = true
+                    RETURNING id_comunicado";
             
             $stmt = $this->db->prepare($sql);
             
-            $stmt->bindValue(':id_persona', $this->id_persona);
-            $stmt->bindValue(':id_rol', $this->id_rol);
-            $stmt->bindValue(':contrasena', password_hash($this->contrasena, PASSWORD_BCRYPT));
-            $stmt->bindValue(':estado', $this->estado);
             $stmt->bindValue(':id_usuario', $this->id_usuario);
+            $stmt->bindValue(':titulo', $this->titulo);
+            $stmt->bindValue(':contenido', $this->contenido);
+            $stmt->bindValue(':fecha_publicacion', $this->fecha_publicacion);
+            $stmt->bindValue(':estado', $this->estado);
+            $stmt->bindValue(':id_comunicado', $this->id_comunicado);
             
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
             return $result !== false;
         } catch (PDOException $e) {
-            error_log("Error al actualizar usuario: " . $e->getMessage());
+            error_log("Error al actualizar comunicado: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function eliminar(): bool {
         try {
-            $sql = "UPDATE usuario SET activo = false
-                    WHERE id_usuario = :id_usuario AND activo = true
-                    RETURNING id_usuario";
+            $sql = "UPDATE comunicado SET activo = false
+                    WHERE id_comunicado = :id_comunicado AND activo = true
+                    RETURNING id_comunicado";
 
             $stmt = $this->db->prepare($sql);
-            $stmt->bindValue(':id_usuario', $this->id_usuario);
+            $stmt->bindValue(':id_comunicado', $this->id_comunicado);
             
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
             return $result !== false;
         } catch (PDOException $e) {
-            error_log("Error al eliminar usuario: " . $e->getMessage());
+            error_log("Error al eliminar comunicado: " . $e->getMessage());
             throw $e;
         }
     }
 
-    // Getters y setters
+    // Getters y Setters
+    public function getId_comunicado(): int {
+        return $this->id_comunicado;
+    }
+
+    public function setId_comunicado(int $id_comunicado): void {
+        $this->id_comunicado = $id_comunicado;
+    }
+
     public function getId_usuario(): int {
         return $this->id_usuario;
     }
@@ -157,37 +168,35 @@ class UsuarioModel {
         $this->id_usuario = $id_usuario;
     }
 
-    public function getId_persona(): int {
-        return $this->id_persona;
+    public function getTitulo(): string {
+        return $this->titulo;
     }
 
-    public function setId_persona(int $id_persona): void {
-        $this->id_persona = $id_persona;
+    public function setTitulo(string $titulo): void {
+        $this->titulo = $titulo;
     }
 
-    public function getId_rol(): int {
-        return $this->id_rol;
+    public function getContenido(): string {
+        return $this->contenido;
     }
 
-    public function setId_rol(int $id_rol): void {
-        $this->id_rol = $id_rol;
+    public function setContenido(string $contenido): void {
+        $this->contenido = $contenido;
     }
 
-    public function getContrasena(): string {
-        return $this->contrasena;
+    public function getFecha_publicacion(): string {
+        return $this->fecha_publicacion;
     }
 
-    public function setContrasena(string $contrasena): void {
-        $auth = new AuthModel();
-        $auth->validatePassword($contrasena);
-        $this->contrasena = $contrasena;
+    public function setFecha_publicacion(string $fecha_publicacion): void {
+        $this->fecha_publicacion = $fecha_publicacion;
     }
 
-    public function getEstado(): ?string {
+    public function getEstado(): string {
         return $this->estado;
     }
 
-    public function setEstado(?string $estado): void {
+    public function setEstado(string $estado): void {
         $this->estado = $estado;
     }
 
@@ -214,5 +223,4 @@ class UsuarioModel {
     public function setFecha_actualizacion(string $fecha_actualizacion): void {
         $this->fecha_actualizacion = $fecha_actualizacion;
     }
-
 }

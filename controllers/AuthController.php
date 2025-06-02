@@ -1,8 +1,8 @@
 <?php
 namespace App\Controllers;
 
-use App\models\UserModel;
-use App\Core\Database;
+use App\models\AuthModel;
+use Exception;
 
 class AuthController
 {
@@ -15,21 +15,36 @@ class AuthController
     {
         session_start();
 
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
+        try {
+            $cedula = $_POST['cedula'] ?? '';
+            $password = $_POST['password'] ?? '';
 
-        $db = (new Database())->connect();
-        $userModel = new UserModel();
-        $userModel->setName(name: $email);
-        $user = $userModel->getName();
+            if (empty($cedula) || empty($password)) {
+                $_SESSION['error'] = 'Cédula y contraseña son requeridos';
+                header('Location: /login');
+                exit;
+            }
 
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_email'] = $user['email'];
-            header('Location: /dashboard');
-        } else {
-            $_SESSION['error'] = 'Credenciales inválidas';
+            $authModel = new AuthModel();
+            $user = $authModel->login($cedula, $password);
+
+            if ($user) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_cedula'] = $user['cedula'];
+                $_SESSION['user_nombres'] = $user['nombres'];
+                $_SESSION['user_apellidos'] = $user['apellidos'];
+                header('Location: /dashboard');
+                exit;
+            }
+
+            $_SESSION['error'] = 'Cédula o contraseña incorrectos';
             header('Location: /login');
+            exit;
+        } catch (Exception $e) {
+            error_log("Error en login: " . $e->getMessage());
+            $_SESSION['error'] = 'Error al iniciar sesión';
+            header('Location: /login');
+            exit;
         }
     }
 

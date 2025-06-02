@@ -4,17 +4,15 @@ namespace App\models;
 use PDO;
 use App\Core\Database;
 use PDOException;
-use Exception;
 
-class UsuarioModel {
+class ConceptoPagoModel {
     private PDO $db;
 
-    //Atributos 
-    private int $id_usuario;
-    private int $id_persona;
-    private int $id_rol;
-    private string $contrasena;
-    private ?string $estado;
+    // Atributos
+    private int $id_concepto;
+    private string $nombre;
+    private ?string $descripcion = null;
+    private float $monto;
     private bool $activo = true;
     private string $fecha_registro;
     private string $fecha_actualizacion;
@@ -24,11 +22,11 @@ class UsuarioModel {
         $this->db = $database->connect();
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
-    
+
     // Métodos CRUD
     public function listar(array $filtros = []): array {
         try {
-            $sql = "SELECT * FROM usuario WHERE activo = true";
+            $sql = "SELECT * FROM concepto_pago WHERE activo = true";
             $params = [];
 
             if (!empty($filtros)) {
@@ -51,144 +49,123 @@ class UsuarioModel {
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error al listar usuarios: " . $e->getMessage());
+            error_log("Error al listar conceptos de pago: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function obtenerPorId(int $id): ?array {
         try {
-            $sql = "SELECT * FROM usuario WHERE id_usuario = :id AND activo = true";
+            $sql = "SELECT * FROM concepto_pago WHERE id_concepto = :id AND activo = true";
             $stmt = $this->db->prepare($sql);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error al obtener usuario: " . $e->getMessage());
+            error_log("Error al obtener concepto de pago: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function crear(): bool {
         try {
-            $sql = "INSERT INTO usuario (id_persona, id_rol, contrasena, estado, fecha_registro)
-                    VALUES (:id_persona, :id_rol, :contrasena, :estado, :fecha_registro)
-                    RETURNING id_usuario";
+            $sql = "INSERT INTO concepto_pago (nombre, descripcion, monto, fecha_registro)
+                    VALUES (:nombre, :descripcion, :monto, :fecha_registro)
+                    RETURNING id_concepto";
             
             $stmt = $this->db->prepare($sql);
 
             $ahora = date('Y-m-d H:i:s');
             $this->fecha_registro = $ahora;
         
-            $stmt->bindValue(':id_persona', $this->id_persona);
-            $stmt->bindValue(':id_rol', $this->id_rol);
-            $stmt->bindValue(':contrasena', password_hash($this->contrasena, PASSWORD_BCRYPT));
-            $stmt->bindValue(':estado', $this->estado);
+            $stmt->bindValue(':nombre', $this->nombre);
+            $stmt->bindValue(':descripcion', $this->descripcion);
+            $stmt->bindValue(':monto', $this->monto);
             $stmt->bindValue(':fecha_registro', $this->fecha_registro);
         
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            if ($result && isset($result['id_usuario'])) {
-                $this->id_usuario = $result['id_usuario'];
+            if ($result && isset($result['id_concepto'])) {
+                $this->id_concepto = $result['id_concepto'];
                 return true;
             }
             
             return false;
         } catch (PDOException $e) {
-            error_log("Error al crear usuario: " . $e->getMessage());
+            error_log("Error al crear concepto de pago: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function actualizar(): bool {
         try {
-            $sql = "UPDATE usuario SET 
-                    id_persona = :id_persona,
-                    id_rol = :id_rol,
-                    contrasena = :contrasena,
-                    estado = :estado
-                    WHERE id_usuario = :id_usuario AND activo = true
-                    RETURNING id_usuario";
+            $sql = "UPDATE concepto_pago SET 
+                    nombre = :nombre,
+                    descripcion = :descripcion,
+                    monto = :monto
+                    WHERE id_concepto = :id_concepto AND activo = true
+                    RETURNING id_concepto";
             
             $stmt = $this->db->prepare($sql);
             
-            $stmt->bindValue(':id_persona', $this->id_persona);
-            $stmt->bindValue(':id_rol', $this->id_rol);
-            $stmt->bindValue(':contrasena', password_hash($this->contrasena, PASSWORD_BCRYPT));
-            $stmt->bindValue(':estado', $this->estado);
-            $stmt->bindValue(':id_usuario', $this->id_usuario);
+            $stmt->bindValue(':nombre', $this->nombre);
+            $stmt->bindValue(':descripcion', $this->descripcion);
+            $stmt->bindValue(':monto', $this->monto);
+            $stmt->bindValue(':id_concepto', $this->id_concepto);
             
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
             return $result !== false;
         } catch (PDOException $e) {
-            error_log("Error al actualizar usuario: " . $e->getMessage());
+            error_log("Error al actualizar concepto de pago: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function eliminar(): bool {
         try {
-            $sql = "UPDATE usuario SET activo = false
-                    WHERE id_usuario = :id_usuario AND activo = true
-                    RETURNING id_usuario";
+            $sql = "UPDATE concepto_pago SET activo = false
+                    WHERE id_concepto = :id_concepto AND activo = true
+                    RETURNING id_concepto";
 
             $stmt = $this->db->prepare($sql);
-            $stmt->bindValue(':id_usuario', $this->id_usuario);
+            $stmt->bindValue(':id_concepto', $this->id_concepto);
             
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
             return $result !== false;
         } catch (PDOException $e) {
-            error_log("Error al eliminar usuario: " . $e->getMessage());
+            error_log("Error al eliminar concepto de pago: " . $e->getMessage());
             throw $e;
         }
     }
 
-    // Getters y setters
-    public function getId_usuario(): int {
-        return $this->id_usuario;
+    // Getters y Setters
+    public function getId_concepto(): int {
+        return $this->id_concepto;
     }
 
-    public function setId_usuario(int $id_usuario): void {
-        $this->id_usuario = $id_usuario;
+    public function setId_concepto(int $id_concepto): void {
+        $this->id_concepto = $id_concepto;
     }
 
-    public function getId_persona(): int {
-        return $this->id_persona;
+    public function getNombre(): string {
+        return $this->nombre;
     }
 
-    public function setId_persona(int $id_persona): void {
-        $this->id_persona = $id_persona;
+    public function setNombre(string $nombre): void {
+        $this->nombre = $nombre;
     }
 
-    public function getId_rol(): int {
-        return $this->id_rol;
+    public function getDescripcion(): ?string {
+        return $this->descripcion;
     }
 
-    public function setId_rol(int $id_rol): void {
-        $this->id_rol = $id_rol;
-    }
-
-    public function getContrasena(): string {
-        return $this->contrasena;
-    }
-
-    public function setContrasena(string $contrasena): void {
-        $auth = new AuthModel();
-        $auth->validatePassword($contrasena);
-        $this->contrasena = $contrasena;
-    }
-
-    public function getEstado(): ?string {
-        return $this->estado;
-    }
-
-    public function setEstado(?string $estado): void {
-        $this->estado = $estado;
+    public function setDescripcion(?string $descripcion): void {
+        $this->descripcion = $descripcion;
     }
 
     public function getActivo(): bool {
@@ -214,5 +191,4 @@ class UsuarioModel {
     public function setFecha_actualizacion(string $fecha_actualizacion): void {
         $this->fecha_actualizacion = $fecha_actualizacion;
     }
-
 }

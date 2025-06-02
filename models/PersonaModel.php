@@ -29,30 +29,69 @@ class PersonaModel {
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-    // Métodos CRUD aquí...
+    // Métodos CRUD
+    public function listar(array $filtros = []): array {
+        try {
+            $sql = "SELECT * FROM persona WHERE activo = true";
+            $params = [];
+
+            // Si hay filtros, los agregamos a la consulta
+            if (!empty($filtros)) {
+                $condiciones = [];
+                foreach ($filtros as $campo => $valor) {
+                    if (property_exists($this, $campo)) {
+                        $condiciones[] = "$campo = :$campo";
+                        $params[":$campo"] = $valor;
+                    }
+                }
+                if (!empty($condiciones)) {
+                    $sql .= " AND " . implode(" AND ", $condiciones);
+                }
+            }
+
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al listar personas: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function obtenerPorId(int $id): ?array {
+        try {
+            $sql = "SELECT * FROM persona WHERE id_persona = :id AND activo = true";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al obtener persona: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
     public function crear(): bool {
         try {
-            $sql = "INSERT INTO persona (cedula, nombres, apellidos, fecha_nacimiento, sexo, telefono, direccion, correo, estado, fecha_registro, fecha_actualizacion)
-                    VALUES (:cedula, :nombres, :apellidos, :fecha_nacimiento, :sexo, :telefono, :direccion, :correo, :estado, :fecha_registro, :fecha_actualizacion)
+            $sql = "INSERT INTO persona (nombres, apellidos, cedula, fecha_nacimiento, correo, telefono, fecha_registro)
+                    VALUES (:nombres, :apellidos, :cedula, :fecha_nacimiento, :correo, :telefono, :fecha_registro)
                     RETURNING id_persona";
             
             $stmt = $this->db->prepare($sql);
 
             $ahora = date('Y-m-d H:i:s');
             $this->fecha_registro = $ahora;
-            $this->fecha_actualizacion = $ahora;
         
-            $stmt->bindValue(':cedula', $this->cedula);
             $stmt->bindValue(':nombres', $this->nombres);
             $stmt->bindValue(':apellidos', $this->apellidos);
+            $stmt->bindValue(':cedula', $this->cedula);
             $stmt->bindValue(':fecha_nacimiento', $this->fecha_nacimiento);
-            $stmt->bindValue(':sexo', $this->sexo);
-            $stmt->bindValue(':telefono', $this->telefono);
-            $stmt->bindValue(':direccion', $this->direccion);
             $stmt->bindValue(':correo', $this->correo);
-            $stmt->bindValue(':estado', $this->estado);
+            $stmt->bindValue(':telefono', $this->telefono);
             $stmt->bindValue(':fecha_registro', $this->fecha_registro);
-            $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
         
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -68,29 +107,89 @@ class PersonaModel {
             throw $e;
         }
     }
+
+    public function actualizar(): bool {
+        try {
+            $sql = "UPDATE persona SET 
+                    nombres = :nombres,
+                    apellidos = :apellidos,
+                    cedula = :cedula,
+                    fecha_nacimiento = :fecha_nacimiento,
+                    correo = :correo,
+                    telefono = :telefono
+                    WHERE id_persona = :id_persona AND activo = true
+                    RETURNING id_persona";
+            
+            $stmt = $this->db->prepare($sql);
+            
+            $stmt->bindValue(':nombres', $this->nombres);
+            $stmt->bindValue(':apellidos', $this->apellidos);
+            $stmt->bindValue(':cedula', $this->cedula);
+            $stmt->bindValue(':fecha_nacimiento', $this->fecha_nacimiento);
+            $stmt->bindValue(':correo', $this->correo);
+            $stmt->bindValue(':telefono', $this->telefono);
+            $stmt->bindValue(':id_persona', $this->id_persona);
+            
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return $result !== false;
+        } catch (PDOException $e) {
+            error_log("Error al actualizar persona: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function eliminar(): bool {
+        try {
+            $sql = "UPDATE persona SET activo = false
+                    WHERE id_persona = :id_persona AND activo = true
+                    RETURNING id_persona";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':id_persona', $this->id_persona);
+            
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $result !== false;
+        } catch (PDOException $e) {
+            error_log("Error al eliminar persona: " . $e->getMessage());
+            throw $e;
+        }
     
+    }
+
     // Getters y Setters
-    public function getCedula(): string {
+    public function getIdPersona(): ?int {
+        return $this->id_persona;
+    }
+
+    public function setIdPersona(?int $id): void {
+        $this->id_persona = $id;
+    }
+
+    public function getCedula(): ?string {
         return $this->cedula;
     }
 
-    public function setCedula(string $cedula): void {
+    public function setCedula(?string $cedula): void {
         $this->cedula = $cedula;
     }
 
-    public function getNombres(): string {
+    public function getNombres(): ?string {
         return $this->nombres;
     }
 
-    public function setNombres(string $nombres): void {
+    public function setNombres(?string $nombres): void {
         $this->nombres = $nombres;
     }
 
-    public function getApellidos(): string {
+    public function getApellidos(): ?string {
         return $this->apellidos;
     }
 
-    public function setApellidos(string $apellidos): void {
+    public function setApellidos(?string $apellidos): void {
         $this->apellidos = $apellidos;
     }
 

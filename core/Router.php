@@ -27,6 +27,16 @@ class Router
         $this->add('POST', $pattern, $handler, $middleware);
     }
 
+    public function put(string $pattern, $handler, array $middleware = []): void
+    {
+        $this->add('PUT', $pattern, $handler, $middleware);
+    }
+
+    public function delete(string $pattern, $handler, array $middleware = []): void
+    {
+        $this->add('DELETE', $pattern, $handler, $middleware);
+    }
+
     public function addMiddleware(string $name, callable $middleware): void
     {
         $this->middleware[$name] = $middleware;
