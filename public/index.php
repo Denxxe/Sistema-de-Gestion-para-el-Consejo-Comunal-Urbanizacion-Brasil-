@@ -54,26 +54,6 @@ $router->post('/usuarios', ['UserController', 'store'], ['auth']);
 
 $router->handleRequest();
 
-$router->get('/personas/editar/:id', [PersonaController::class, 'edit'], ['auth']);
-$router->post('/personas/actualizar/:id', [PersonaController::class, 'update'], ['auth']);
-$router->post('/personas/eliminar/:id', [PersonaController::class, 'delete'], ['auth']);
-
-// Rutas de Roles
-$router->get('/roles', [RolController::class, 'index'], ['auth']);
-$router->get('/roles/crear', [RolController::class, 'create'], ['auth']);
-$router->post('/roles', [RolController::class, 'store'], ['auth']);
-$router->get('/roles/editar/:id', [RolController::class, 'edit'], ['auth']);
-$router->post('/roles/actualizar/:id', [RolController::class, 'update'], ['auth']);
-$router->post('/roles/eliminar/:id', [RolController::class, 'delete'], ['auth']);
-
-// Rutas de Permisos
-$router->get('/permisos', [PermisoController::class, 'index'], ['auth']);
-$router->get('/permisos/crear', [PermisoController::class, 'create'], ['auth']);
-$router->post('/permisos', [PermisoController::class, 'store'], ['auth']);
-$router->get('/permisos/editar/:id', [PermisoController::class, 'edit'], ['auth']);
-$router->post('/permisos/actualizar/:id', [PermisoController::class, 'update'], ['auth']);
-$router->post('/permisos/eliminar/:id', [PermisoController::class, 'delete'], ['auth']);
-
 // Rutas protegidas (si decides usar auth)
 $router->get('/dashboard', ['DashboardController', 'index'], ['auth']);
 $router->post('/usuarios', ['UserController', 'store'], ['auth']);
