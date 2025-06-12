@@ -7,7 +7,7 @@
     --background-end: #f5f5f5;  
     --text-color: #333;
     --input-border: #ccc;
-    --focus-glow: rgba(106, 5, 114, 0.2); 
+    --focus-glow: rgba(114, 5, 5, 0.2); 
     --shadow-light: rgba(0, 0, 0, 0.08);
     --shadow-medium: rgba(0, 0, 0, 0.15);
 }
@@ -114,7 +114,7 @@ body {
     font-size: 0.95rem;
     padding: 0.8rem 1.25rem;
     background-color: #ffe0e0; 
-    color: #d9534f; 
+    color: #d64945; 
     border: 1px solid #f0b4b4;
     animation: fadeInScale 0.5s ease-out forwards;
 }
