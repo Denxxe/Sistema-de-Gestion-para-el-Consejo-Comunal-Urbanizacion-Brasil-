@@ -94,6 +94,15 @@ class UsuarioModel {
 
     public function crear(): bool {
         try {
+            if (empty($this->contrasena)) {
+                throw new \InvalidArgumentException("La contraseña es obligatoria");
+            }
+
+            // Usar AuthModel para validar y hashear
+            $auth = new AuthModel();
+            $auth->validatePassword($this->contrasena);
+            $hashContrasena = $auth->hashPassword($this->contrasena);
+
             $sql = "INSERT INTO usuario (
                     id_persona, 
                     id_rol, 
@@ -109,20 +118,19 @@ class UsuarioModel {
                     :estado,
                     :activo, 
                     :fecha_registro,
-                    :fecha_actalizacion)
+                    :fecha_actualizacion)
                     RETURNING id_usuario";
             
             $stmt = $this->db->prepare($sql);
-
             $ahora = date('Y-m-d H:i:s');
             $this->fecha_registro = $ahora;
             $this->fecha_actualizacion = $ahora;
         
             $stmt->bindValue(':id_persona', $this->id_persona);
             $stmt->bindValue(':id_rol', $this->id_rol);
-            $stmt->bindValue(':contrasena', password_hash($this->contrasena, PASSWORD_BCRYPT));
-            $stmt->bindValue(':estado', $this->estado);
-            $stmt->bindValue(':activo', $this->activo);
+            $stmt->bindValue(':contrasena', $hashContrasena);
+            $stmt->bindValue(':estado', $this->estado ?? 'activo');
+            $stmt->bindValue(':activo', $this->activo ?? true, PDO::PARAM_BOOL);
             $stmt->bindValue(':fecha_registro', $this->fecha_registro);
             $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
 
@@ -146,17 +154,28 @@ class UsuarioModel {
             $sql = "UPDATE usuario SET 
                     id_persona = :id_persona,
                     id_rol = :id_rol,
-                    contrasena = :contrasena,
-                    estado = :estado
+                    estado = :estado,"
+                    . (empty($this->contrasena) ? '' : 'contrasena = :contrasena,')
+                    . "fecha_actualizacion = :fecha_actualizacion
                     WHERE id_usuario = :id_usuario AND activo = true
                     RETURNING id_usuario";
             
             $stmt = $this->db->prepare($sql);
+            $this->fecha_actualizacion = date('Y-m-d H:i:s');
             
             $stmt->bindValue(':id_persona', $this->id_persona);
             $stmt->bindValue(':id_rol', $this->id_rol);
-            $stmt->bindValue(':contrasena', password_hash($this->contrasena, PASSWORD_BCRYPT));
             $stmt->bindValue(':estado', $this->estado);
+            
+            // Solo actualizar contraseña si se proporciona una nueva
+            if (!empty($this->contrasena)) {
+                $auth = new AuthModel();
+                $auth->validatePassword($this->contrasena);
+                $hashContrasena = $auth->hashPassword($this->contrasena);
+                $stmt->bindValue(':contrasena', $hashContrasena);
+            }
+            
+            $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
             $stmt->bindValue(':id_usuario', $this->id_usuario);
             
             $stmt->execute();
@@ -252,9 +271,7 @@ class UsuarioModel {
     }
 
     public function setContrasena(string $contrasena): void {
-        $auth = new AuthModel();
-        $auth->validatePassword($contrasena);
-        $this->contrasena = $contrasena;
+        $this->contrasena = $contrasena; // AuthModel validará en crear/actualizar
     }
 
     public function getEstado(): ?string {

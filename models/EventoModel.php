@@ -14,7 +14,8 @@ class EventoModel {
     private string $descripcion;
     private string $fecha_evento;
     private string $lugar;
-    private int $creado_por;
+    private int $creado_por ;
+    private string $estado;
     private bool $activo = true;
     private string $fecha_registro;
     private string $fecha_actualizacion;
@@ -71,14 +72,15 @@ class EventoModel {
 
     public function crear(): bool {
         try {
-            $sql = "INSERT INTO evento (titulo, descripcion, fecha_evento, lugar, creado_por, fecha_registro)
-                    VALUES (:titulo, :descripcion, :fecha_evento, :lugar, :creado_por, :fecha_registro)
+            $sql = "INSERT INTO evento (titulo, descripcion, fecha_evento, lugar, creado_por, fecha_registro, fecha_actualizacion)
+                    VALUES (:titulo, :descripcion, :fecha_evento, :lugar, :creado_por, :fecha_registro, :fecha_actualizacion)
                     RETURNING id_evento";
             
             $stmt = $this->db->prepare($sql);
 
             $ahora = date('Y-m-d H:i:s');
             $this->fecha_registro = $ahora;
+            $this->fecha_actualizacion = $ahora;
         
             $stmt->bindValue(':titulo', $this->titulo);
             $stmt->bindValue(':descripcion', $this->descripcion);
@@ -86,6 +88,7 @@ class EventoModel {
             $stmt->bindValue(':lugar', $this->lugar);
             $stmt->bindValue(':creado_por', $this->creado_por);
             $stmt->bindValue(':fecha_registro', $this->fecha_registro);
+            $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
         
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -109,7 +112,8 @@ class EventoModel {
                     descripcion = :descripcion,
                     fecha_evento = :fecha_evento,
                     lugar = :lugar,
-                    creado_por = :creado_por
+                    creado_por = :creado_por,
+                    estado = :estado
                     WHERE id_evento = :id_evento AND activo = true
                     RETURNING id_evento";
             
@@ -121,7 +125,7 @@ class EventoModel {
             $stmt->bindValue(':lugar', $this->lugar);
             $stmt->bindValue(':creado_por', $this->creado_por);
             $stmt->bindValue(':id_evento', $this->id_evento);
-            
+            $stmt->bindValue(':estado', $this->estado);
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -254,5 +258,13 @@ class EventoModel {
 
     public function setFecha_actualizacion(string $fecha_actualizacion): void {
         $this->fecha_actualizacion = $fecha_actualizacion;
+    }
+
+    public function getEstado(): string {
+        return $this->estado;
+    }
+
+    public function setEstado(string $estado): void {
+        $this->estado = $estado;
     }
 }

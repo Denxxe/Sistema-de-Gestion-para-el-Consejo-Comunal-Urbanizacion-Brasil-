@@ -25,6 +25,51 @@ class ComentarioModel {
     }
 
     // Métodos CRUD
+    public function listar(array $filtros = []): array {
+        try {
+            $sql = "SELECT * FROM comentario WHERE activo = true";
+            $params = [];
+
+            if (!empty($filtros)) {
+                $condiciones = [];
+                foreach ($filtros as $campo => $valor) {
+                    if (property_exists($this, $campo)) {
+                        $condiciones[] = "$campo = :$campo";
+                        $params[":$campo"] = $valor;
+                    }
+                }
+                if (!empty($condiciones)) {
+                    $sql .= " AND " . implode(" AND ", $condiciones);
+                }
+            }
+
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        } catch (PDOException $e) {
+            error_log("Error al listar los comentarios: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function obtenerPorId($id): array {
+        try {
+            $sql = "SELECT * FROM comentario WHERE id_comentario = :id_comentario";
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':id_comentario', $id);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result;
+        } catch (PDOException $e) {
+            error_log("Error al obtener el comentario: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
     public function crear(): bool {
         try {
             $sql = "INSERT INTO comentario (id_comunicado, id_usuario, contenido, fecha_comentario, fecha_registro, fecha_actualizacion)
@@ -59,6 +104,39 @@ class ComentarioModel {
         }
     }
     
+    public function editar($id){
+        try {
+            $sql = "UPDATE comentario SET
+                    id_comunicado = :id_comunicado,
+                    id_usuario = :id_usuario,
+                    contenido = :contenido,
+                    fecha_comentario = :fecha_comentario,
+                    fecha_actualizacion = :fecha_actualizacion 
+                    WHERE id_comentario = :id_comentario ";
+            
+            $stmt = $this->db->prepare($sql);
+            
+            $stmt->bindValue(":id_comentario", $id);
+            $stmt->bindValue(":id_comunicado", $this->id_comunicado);
+            $stmt->bindValue(":id_usuario", $this->id_usuario);
+            $stmt->bindValue(":contenido", $this->contenido);
+            $stmt->bindValue(":fecha_comentario", $this->fecha_comentario);
+            $stmt->bindValue(":fecha_actualizacion", $this->fecha_actualizacion);
+            
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result && isset($result["id_comentario"]) && isset($result["activo"])) {
+                $this->activo = $result['activo'];
+                return true;
+            }
+            
+            return false;
+        } catch (PDOException $e) {
+            error_log("Error al editar el comentario: " . $e->getMessage());
+            throw $e;
+        }
+    }
     public function eliminar(): bool {
         try {
             $sql = "UPDATE comentario SET activo = :activo

@@ -211,6 +211,14 @@ class ConceptoPagoModel {
         return $this->fecha_registro;
     }
 
+    public function getMonto(): float {
+        return $this->monto;
+    }
+
+    public function setMonto(float $monto): void {
+        $this->monto = $monto;
+    }
+
     public function setFecha_registro(string $fecha_registro): void {
         $this->fecha_registro = $fecha_registro;
     }
