@@ -151,6 +151,38 @@ class EventoModel {
         }
     }
 
+    public function contar(array $filtros = []): int {
+        try {
+            $sql = 'SELECT COUNT(*) AS total FROM evento WHERE activo = true';
+            $params = [];
+
+            // Aplicar filtros si se proporcionan
+            if (!empty($filtros)) {
+                $condiciones = [];
+                foreach ($filtros as $campo => $valor) {
+                    if (property_exists($this, $campo)) {
+                        $condiciones[] = "$campo = :$campo";
+                        $params[":$campo"] = $valor;
+                    }
+                }
+                if (!empty($condiciones)) {
+                    $sql .= ' AND ' . implode(' AND ', $condiciones);
+                }
+            }
+
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->execute();
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            return (int)($resultado['total'] ?? 0);
+        } catch (PDOException $e) {
+            error_log('Error al contar eventos: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
     // Getters y Setters
     public function getId_evento(): int {
         return $this->id_evento;

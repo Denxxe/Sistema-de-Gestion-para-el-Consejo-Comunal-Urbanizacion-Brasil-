@@ -10,13 +10,13 @@ class PersonaModel {
 
     // Atributos
     private int $id_persona;
-    private string $cedula;
+    private ?string $cedula;
     private string $nombres;
     private string $apellidos;
     private ?string $telefono = null;
     private ?string $correo = null;
     private ?string $direccion = null;
-    private ?string $sexo = null;
+    private string $sexo;
     private ?string $estado = null;
     private ?string $fecha_nacimiento = null;
     private bool $activo = true;
@@ -32,7 +32,20 @@ class PersonaModel {
     // Métodos CRUD
     public function listar(array $filtros = []): array {
         try {
-            $sql = "SELECT * FROM persona WHERE activo = true";
+            $sql = "SELECT id_persona,
+            cedula,
+            nombres,
+            apellidos,
+            telefono,
+            correo,
+            direccion,
+            sexo,
+            estado,
+            fecha_nacimiento,
+            activo,
+            fecha_registro,
+            fecha_actualizacion 
+            FROM persona WHERE activo = true";
             $params = [];
 
             // Si hay filtros, los agregamos a la consulta
@@ -63,7 +76,20 @@ class PersonaModel {
 
     public function obtenerPorId(int $id): ?array {
         try {
-            $sql = "SELECT * FROM persona WHERE id_persona = :id AND activo = true";
+            $sql = "SELECT id_persona,
+            cedula,
+            nombres,
+            apellidos,
+            telefono,
+            correo,
+            direccion,
+            sexo,
+            estado,
+            fecha_nacimiento,
+            activo,
+            fecha_registro,
+            fecha_actualizacion 
+            FROM persona WHERE id_persona = :id AND activo = true";
             $stmt = $this->db->prepare($sql);
             $stmt->bindValue(':id', $id);
             $stmt->execute();
@@ -76,9 +102,31 @@ class PersonaModel {
 
     public function crear(): bool {
         try {
-            $sql = "INSERT INTO persona (nombres, apellidos, cedula, fecha_nacimiento, correo, telefono, fecha_registro)
-                    VALUES (:nombres, :apellidos, :cedula, :fecha_nacimiento, :correo, :telefono, :fecha_registro)
-                    RETURNING id_persona";
+            $sql = "INSERT INTO persona (
+                nombres,
+                apellidos,
+                cedula,
+                sexo,
+                fecha_nacimiento,
+                correo,
+                telefono,
+                direccion,
+                fecha_registro,
+                fecha_actualizacion,
+                activo)
+                VALUES (
+                :nombres,
+                :apellidos,
+                :cedula,
+                :sexo,
+                :fecha_nacimiento,
+                :correo,
+                :telefono,
+                :direccion,
+                :fecha_registro,
+                :fecha_actualizacion,
+                :activo)
+                RETURNING id_persona";
             
             $stmt = $this->db->prepare($sql);
 
@@ -92,6 +140,10 @@ class PersonaModel {
             $stmt->bindValue(':correo', $this->correo);
             $stmt->bindValue(':telefono', $this->telefono);
             $stmt->bindValue(':fecha_registro', $this->fecha_registro);
+            $stmt->bindValue(':direccion', $this->direccion);
+            $stmt->bindValue(':sexo', $this->sexo);
+            $stmt->bindValue(':estado', $this->estado);
+            $stmt->bindValue(':activo', $this->activo);
         
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -111,23 +163,27 @@ class PersonaModel {
     public function actualizar(): bool {
         try {
             $sql = "UPDATE persona SET 
-                    nombres = :nombres,
-                    apellidos = :apellidos,
-                    cedula = :cedula,
-                    fecha_nacimiento = :fecha_nacimiento,
-                    correo = :correo,
-                    telefono = :telefono
-                    WHERE id_persona = :id_persona AND activo = true
-                    RETURNING id_persona";
+                nombres = :nombres,
+                apellidos = :apellidos,
+                fecha_nacimiento = :fecha_nacimiento,
+                correo = :correo,
+                telefono = :telefono,
+                direccion = :direccion,
+                estado = :estado,
+                fecha_actualizacion = :fecha_actualizacion,
+                WHERE id_persona = :id_persona AND activo = true
+                RETURNING id_persona";
             
             $stmt = $this->db->prepare($sql);
             
             $stmt->bindValue(':nombres', $this->nombres);
             $stmt->bindValue(':apellidos', $this->apellidos);
-            $stmt->bindValue(':cedula', $this->cedula);
             $stmt->bindValue(':fecha_nacimiento', $this->fecha_nacimiento);
             $stmt->bindValue(':correo', $this->correo);
             $stmt->bindValue(':telefono', $this->telefono);
+            $stmt->bindValue(':direccion', $this->direccion);
+            $stmt->bindValue(':estado', $this->estado);
+            $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
             $stmt->bindValue(':id_persona', $this->id_persona);
             
             $stmt->execute();
@@ -158,6 +214,39 @@ class PersonaModel {
             throw $e;
         }
     
+    }
+
+    // Método para contar registros
+    public function contar(array $filtros = []): int {
+        try {
+            $sql = 'SELECT COUNT(*) AS total FROM persona WHERE activo = true';
+            $params = [];
+
+            // Aplicar filtros si se proporcionan
+            if (!empty($filtros)) {
+                $condiciones = [];
+                foreach ($filtros as $campo => $valor) {
+                    if (property_exists($this, $campo)) {
+                        $condiciones[] = "$campo = :$campo";
+                        $params[":$campo"] = $valor;
+                    }
+                }
+                if (!empty($condiciones)) {
+                    $sql .= ' AND ' . implode(' AND ', $condiciones);
+                }
+            }
+
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->execute();
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            return (int)($resultado['total'] ?? 0);
+        } catch (PDOException $e) {
+            error_log('Error al contar personas: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     // Getters y Setters

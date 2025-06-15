@@ -2,7 +2,6 @@
 namespace App\controllers;
 
 use App\models\UsuarioModel;
-use App\models\PersonaModel;
 use App\Core\Response;
 
 class UsuarioController
@@ -58,8 +57,7 @@ class UsuarioController
 
         try {
             $usuario = new UsuarioModel();
-
-            $usuario->setId_usuario($datos['id_usuario'] ?? null);
+            
             $usuario->setId_persona($datos['id_persona']);
             $usuario->setId_rol($datos['id_rol']);
             $usuario->setContrasena($datos['contrasena']);
@@ -161,6 +159,18 @@ class UsuarioController
             return Response::response500('Error al actualizar contraseña');
         } catch (\Exception $e) {
             return Response::response500('Error al cambiar contraseña: ' . $e->getMessage());
+        }
+    }
+
+    public function contar($filtros = null): array {
+        try {
+             $habitante = new UsuarioModel();
+            $filtros = $filtros ?? [];
+            $total =  $habitante->contar($filtros);
+
+            return Response::response200('Conteo realizado exitosamente', ['total' => $total]);
+        } catch (\Exception $e) {
+            return Response::response500('Error al contar usuarios: ' . $e->getMessage());
         }
     }
 }

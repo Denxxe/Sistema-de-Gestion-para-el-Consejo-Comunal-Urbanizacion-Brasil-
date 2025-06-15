@@ -26,6 +26,158 @@ class PagoModel {
     }
 
     // Métodos CRUD
+    /**
+     * Lista pagos activos, uniendo información del usuario (con persona) y del concepto de pago.
+     * Permite filtros opcionales por cualquier campo existente en la tabla pago.
+     */
+    public function listar(array $filtros = []): array {
+        try {
+            $sql = "SELECT p.id_pago,
+                           p.monto,
+                           p.fecha_pago,
+                           p.estado_pago,
+                           p.fecha_registro,
+                           u.id_usuario,
+                           per.cedula,
+                           per.nombres,
+                           per.apellidos,
+                           c.id_concepto,
+                           c.nombre AS concepto
+                    FROM pago p
+                    INNER JOIN usuario u ON u.id_usuario = p.id_usuario
+                    INNER JOIN persona per ON per.id_persona = u.id_persona
+                    INNER JOIN concepto_pago c ON c.id_concepto = p.id_concepto
+                    WHERE p.activo = true";
+
+            $params = [];
+            if (!empty($filtros)) {
+                $condiciones = [];
+                foreach ($filtros as $campo => $valor) {
+                    // Solo aplicar filtros que existan como propiedad en PagoModel
+                    if (property_exists($this, $campo)) {
+                        $condiciones[] = "p.$campo = :$campo";
+                        $params[":$campo"] = $valor;
+                    }
+                }
+                if ($condiciones) {
+                    $sql .= " AND " . implode(" AND ", $condiciones);
+                }
+            }
+
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al listar pagos: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Obtiene un pago por su ID con los mismos JOINs que listar().
+     */
+    public function obtenerPorId(int $id): ?array {
+        try {
+            $sql = "SELECT p.id_pago,
+                           p.monto,
+                           p.fecha_pago,
+                           p.estado_pago,
+                           p.fecha_registro,
+                           u.id_usuario,
+                           per.cedula,
+                           per.nombres,
+                           per.apellidos,
+                           c.id_concepto,
+                           c.nombre AS concepto
+                    FROM pago p
+                    INNER JOIN usuario u ON u.id_usuario = p.id_usuario
+                    INNER JOIN persona per ON per.id_persona = u.id_persona
+                    INNER JOIN concepto_pago c ON c.id_concepto = p.id_concepto
+                    WHERE p.id_pago = :id AND p.activo = true";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al obtener pago: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Actualiza un pago existente.
+     */
+    public function actualizar(): bool {
+        try {
+            $sql = "UPDATE pago SET
+                        id_usuario   = :id_usuario,
+                        id_concepto  = :id_concepto,
+                        monto        = :monto,
+                        fecha_pago   = :fecha_pago,
+                        estado_pago  = :estado_pago,
+                        fecha_actualizacion = :fecha_actualizacion
+                    WHERE id_pago = :id_pago AND activo = true
+                    RETURNING id_pago";
+
+            $stmt = $this->db->prepare($sql);
+
+            $this->fecha_actualizacion = date('Y-m-d H:i:s');
+
+            $stmt->bindValue(':id_usuario', $this->id_usuario);
+            $stmt->bindValue(':id_concepto', $this->id_concepto);
+            $stmt->bindValue(':monto', $this->monto);
+            $stmt->bindValue(':fecha_pago', $this->fecha_pago);
+            $stmt->bindValue(':estado_pago', $this->estado_pago);
+            $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
+            $stmt->bindValue(':id_pago', $this->id_pago);
+
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result !== false;
+        } catch (PDOException $e) {
+            error_log("Error al actualizar pago: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Cuenta pagos activos, con filtros opcionales.
+     */
+    public function contar(array $filtros = []): int {
+        try {
+            $sql = "SELECT COUNT(*) AS total FROM pago p WHERE p.activo = true";
+            $params = [];
+
+            if ($filtros) {
+                $condiciones = [];
+                foreach ($filtros as $campo => $valor) {
+                    if (property_exists($this, $campo)) {
+                        $condiciones[] = "p.$campo = :$campo";
+                        $params[":$campo"] = $valor;
+                    }
+                }
+                if ($condiciones) {
+                    $sql .= " AND " . implode(" AND ", $condiciones);
+                }
+            }
+
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
+            }
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? (int) $result['total'] : 0;
+        } catch (PDOException $e) {
+            error_log("Error al contar pagos: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
     public function crear(): bool {
         try {
             $sql = "INSERT INTO pago (id_usuario, id_concepto, monto, fecha_pago, estado_pago, fecha_registro)

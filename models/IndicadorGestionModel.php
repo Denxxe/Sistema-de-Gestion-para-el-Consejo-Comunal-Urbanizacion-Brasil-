@@ -26,6 +26,147 @@ class IndicadorGestionModel {
     }
 
     // Métodos CRUD
+    /**
+     * Lista indicadores activos con información del usuario que los generó.
+     */
+    public function listar(array $filtros = []): array {
+        try {
+            $sql = "SELECT ig.id_indicador,
+                           ig.nombre,
+                           ig.descripcion,
+                           ig.valor,
+                           ig.fecha_registro,
+                           ig.generado_por,
+                           u.id_usuario,
+                           p.nombres,
+                           p.apellidos
+                    FROM indicador_gestion ig
+                    LEFT JOIN usuario u ON u.id_usuario = ig.generado_por
+                    LEFT JOIN persona p ON p.id_persona = u.id_persona
+                    WHERE ig.activo = true";
+
+            $params = [];
+            if ($filtros) {
+                $condiciones = [];
+                foreach ($filtros as $campo => $valor) {
+                    if (property_exists($this, $campo)) {
+                        $condiciones[] = "ig.$campo = :$campo";
+                        $params[":$campo"] = $valor;
+                    }
+                }
+                if ($condiciones) {
+                    $sql .= " AND " . implode(" AND ", $condiciones);
+                }
+            }
+
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
+            }
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al listar indicadores: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Obtiene un indicador por su ID.
+     */
+    public function obtenerPorId(int $id): ?array {
+        try {
+            $sql = "SELECT ig.id_indicador,
+                           ig.nombre,
+                           ig.descripcion,
+                           ig.valor,
+                           ig.fecha_registro,
+                           ig.generado_por,
+                           u.id_usuario,
+                           p.nombres,
+                           p.apellidos
+                    FROM indicador_gestion ig
+                    LEFT JOIN usuario u ON u.id_usuario = ig.generado_por
+                    LEFT JOIN persona p ON p.id_persona = u.id_persona
+                    WHERE ig.id_indicador = :id AND ig.activo = true";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al obtener indicador: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Actualiza un indicador existente.
+     */
+    public function actualizar(): bool {
+        try {
+            $sql = "UPDATE indicador_gestion SET
+                        nombre = :nombre,
+                        descripcion = :descripcion,
+                        valor = :valor,
+                        fecha_registro = :fecha_registro,
+                        generado_por = :generado_por,
+                        fecha_actualizacion = :fecha_actualizacion
+                    WHERE id_indicador = :id_indicador AND activo = true
+                    RETURNING id_indicador";
+
+            $stmt = $this->db->prepare($sql);
+            $this->fecha_actualizacion = date('Y-m-d H:i:s');
+
+            $stmt->bindValue(':nombre', $this->nombre);
+            $stmt->bindValue(':descripcion', $this->descripcion);
+            $stmt->bindValue(':valor', $this->valor);
+            $stmt->bindValue(':fecha_registro', $this->fecha_registro);
+            $stmt->bindValue(':generado_por', $this->generado_por);
+            $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
+            $stmt->bindValue(':id_indicador', $this->id_indicador);
+
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result !== false;
+        } catch (PDOException $e) {
+            error_log("Error al actualizar indicador: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Cuenta indicadores activos según filtros.
+     */
+    public function contar(array $filtros = []): int {
+        try {
+            $sql = "SELECT COUNT(*) AS total FROM indicador_gestion ig WHERE ig.activo = true";
+            $params = [];
+            if ($filtros) {
+                $condiciones = [];
+                foreach ($filtros as $campo => $valor) {
+                    if (property_exists($this, $campo)) {
+                        $condiciones[] = "ig.$campo = :$campo";
+                        $params[":$campo"] = $valor;
+                    }
+                }
+                if ($condiciones) {
+                    $sql .= " AND " . implode(" AND ", $condiciones);
+                }
+            }
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
+            }
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? (int) $result['total'] : 0;
+        } catch (PDOException $e) {
+            error_log("Error al contar indicadores: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
     public function crear(): bool {
         try {
             $sql = "INSERT INTO indicador_gestion (nombre, descripcion, valor, fecha_registro, generado_por, fecha_creacion, fecha_actualizacion)

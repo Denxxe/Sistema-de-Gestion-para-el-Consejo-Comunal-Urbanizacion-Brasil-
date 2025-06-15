@@ -23,6 +23,132 @@ class ParticipacionEventoModel {
     }
 
     // Métodos CRUD
+    /**
+     * Lista participaciones activas con nombre de usuario (persona) y título de evento.
+     */
+    public function listar(array $filtros = []): array {
+        try {
+            $sql = "SELECT pe.id_participacion,
+                           pe.fecha_registro,
+                           e.id_evento,
+                           e.titulo AS evento,
+                           u.id_usuario,
+                           p.cedula,
+                           p.nombres,
+                           p.apellidos
+                    FROM participacion_evento pe
+                    INNER JOIN evento e ON e.id_evento = pe.id_evento
+                    INNER JOIN usuario u ON u.id_usuario = pe.id_usuario
+                    INNER JOIN persona p ON p.id_persona = u.id_persona
+                    WHERE pe.activo = true";
+
+            $params = [];
+            if ($filtros) {
+                $condiciones = [];
+                foreach ($filtros as $campo => $valor) {
+                    if (property_exists($this, $campo)) {
+                        $condiciones[] = "pe.$campo = :$campo";
+                        $params[":$campo"] = $valor;
+                    }
+                }
+                if ($condiciones) {
+                    $sql .= " AND " . implode(" AND ", $condiciones);
+                }
+            }
+
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
+            }
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al listar participación evento: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function obtenerPorId(int $id): ?array {
+        try {
+            $sql = "SELECT pe.id_participacion,
+                           pe.fecha_registro,
+                           e.id_evento,
+                           e.titulo AS evento,
+                           u.id_usuario,
+                           p.cedula,
+                           p.nombres,
+                           p.apellidos
+                    FROM participacion_evento pe
+                    INNER JOIN evento e ON e.id_evento = pe.id_evento
+                    INNER JOIN usuario u ON u.id_usuario = pe.id_usuario
+                    INNER JOIN persona p ON p.id_persona = u.id_persona
+                    WHERE pe.id_participacion = :id AND pe.activo = true";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':id', $id);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al obtener participación evento: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function actualizar(): bool {
+        try {
+            $sql = "UPDATE participacion_evento SET
+                        id_evento = :id_evento,
+                        id_usuario = :id_usuario,
+                        fecha_actualizacion = :fecha_actualizacion
+                    WHERE id_participacion = :id_participacion AND activo = true
+                    RETURNING id_participacion";
+
+            $stmt = $this->db->prepare($sql);
+            $this->fecha_actualizacion = date('Y-m-d H:i:s');
+
+            $stmt->bindValue(':id_evento', $this->id_evento);
+            $stmt->bindValue(':id_usuario', $this->id_usuario);
+            $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
+            $stmt->bindValue(':id_participacion', $this->id_participacion);
+
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result !== false;
+        } catch (PDOException $e) {
+            error_log("Error al actualizar participación evento: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function contar(array $filtros = []): int {
+        try {
+            $sql = "SELECT COUNT(*) AS total FROM participacion_evento pe WHERE pe.activo = true";
+            $params = [];
+            if ($filtros) {
+                $condiciones = [];
+                foreach ($filtros as $campo => $valor) {
+                    if (property_exists($this, $campo)) {
+                        $condiciones[] = "pe.$campo = :$campo";
+                        $params[":$campo"] = $valor;
+                    }
+                }
+                if ($condiciones) {
+                    $sql .= " AND " . implode(" AND ", $condiciones);
+                }
+            }
+            $stmt = $this->db->prepare($sql);
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
+            }
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? (int) $result['total'] : 0;
+        } catch (PDOException $e) {
+            error_log("Error al contar participación evento: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
     public function crear(): bool {
         try {
             $sql = "INSERT INTO participacion_evento (id_evento, id_usuario, fecha_registro, fecha_actualizacion)

@@ -71,9 +71,23 @@ class ViviendaModel {
 
     public function crear(): bool {
         try {
-            $sql = "INSERT INTO vivienda (direccion, numero, tipo, sector, estado, fecha_registro, fecha_actualizacion)
-                    VALUES (:direccion, :numero, :tipo, :sector, :estado, :fecha_registro, :fecha_actualizacion)
-                    RETURNING id_vivienda";
+            $sql = "INSERT INTO vivienda (
+                direccion,
+                numero, 
+                tipo, 
+                sector, 
+                estado, 
+                fecha_registro, 
+                fecha_actualizacion)
+                VALUES (
+                :direccion, 
+                :numero, 
+                :tipo, 
+                :sector, 
+                :estado, 
+                :fecha_registro, 
+                :fecha_actualizacion)
+                RETURNING id_vivienda";
             
             $stmt = $this->db->prepare($sql);
 
@@ -152,6 +166,39 @@ class ViviendaModel {
             throw $e;
         }
     }
+
+        // Método para contar registros
+        public function contar(array $filtros = []): int {
+            try {
+                $sql = 'SELECT COUNT(*) AS total FROM vivienda WHERE activo = true';
+                $params = [];
+    
+                // Aplicar filtros si se proporcionan
+                if (!empty($filtros)) {
+                    $condiciones = [];
+                    foreach ($filtros as $campo => $valor) {
+                        if (property_exists($this, $campo)) {
+                            $condiciones[] = "$campo = :$campo";
+                            $params[":$campo"] = $valor;
+                        }
+                    }
+                    if (!empty($condiciones)) {
+                        $sql .= ' AND ' . implode(' AND ', $condiciones);
+                    }
+                }
+    
+                $stmt = $this->db->prepare($sql);
+                foreach ($params as $key => $value) {
+                    $stmt->bindValue($key, $value);
+                }
+                $stmt->execute();
+                $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+                return (int)($resultado['total'] ?? 0);
+            } catch (PDOException $e) {
+                error_log('Error al contar vivienda: ' . $e->getMessage());
+                throw $e;
+            }
+        }
 
     // Getters y Setters
     public function getId_vivienda(): int {
