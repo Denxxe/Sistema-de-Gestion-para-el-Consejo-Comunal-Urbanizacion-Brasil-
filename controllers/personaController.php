@@ -134,4 +134,16 @@ class PersonaController {
             return Response::response500('Error al eliminar persona: ' . $e->getMessage());
         }
     }
+
+    public function contar($filtros = null): array {
+        try {
+            $persona = new PersonaModel();
+            $filtros = $filtros ?? [];
+            $total = $persona->contar($filtros);
+
+            return Response::response200('Conteo realizado exitosamente', ['total' => $total]);
+        } catch (\Exception $e) {
+            return Response::response500('Error al contar personas: ' . $e->getMessage());
+        }
+    }
 }

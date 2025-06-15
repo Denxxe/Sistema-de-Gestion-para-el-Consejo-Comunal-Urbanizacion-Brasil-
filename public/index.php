@@ -11,6 +11,7 @@ require_once '../controllers/permisoController.php';
 require_once '../controllers/habitanteController.php';
 require_once '../controllers/pagoController.php';
 require_once '../controllers/authController.php';
+require_once '../controllers/indicadorGestionController.php';
 
 $router = new App\Core\Router();
 
@@ -44,6 +45,14 @@ $router->get('/personas', function () {
 $router->get('/personas/actualizar/:id', function ($id) {
     require_once '../view/personas/actualizar.php';
 });
+
+$router->get('/indicadores/basicos', ['IndicadorGestionController', 'basicos']);
+$router->get('/indicadores', ['IndicadorGestionController', 'listar']);
+$router->post('/indicadores', ['IndicadorGestionController', 'crear']);
+$router->put('/indicadores/{id}', ['IndicadorGestionController', 'actualizar']);
+$router->delete('/indicadores/{id}', ['IndicadorGestionController', 'eliminar']);
+$router->get('/indicadores/contar', ['IndicadorGestionController', 'contar']);
+
 $router->post('/personas', ['PersonaController', 'crear']);
 $router->put('/personas/:id', ['PersonaController', 'actualizar']);
 $router->delete('/personas/:id', ['PersonaController', 'eliminar']);

@@ -114,7 +114,18 @@ class Router
             $inputData = file_get_contents("php://input");
             $body = json_decode($inputData, true) ?? $_POST;
 
-            $result = call_user_func_array([$controller, $method], array_merge([$body], $params));
+            // Construir argumentos: solo incluir body para métodos que típicamente llevan payload
+            $args = [];
+            if (in_array($route['method'], ['POST', 'PUT', 'PATCH']) && !empty($body)) {
+                $args[] = $body; // primer argumento será el payload
+            }
+
+            // Añadir parámetros capturados de la ruta manteniendo orden natural
+            foreach ($params as $value) {
+                $args[] = $value;
+            }
+
+            $result = call_user_func_array([$controller, $method], $args);
             if ($result !== null) {
                 header('Content-Type: application/json; charset=utf-8');
                 echo json_encode($result, JSON_UNESCAPED_UNICODE);
