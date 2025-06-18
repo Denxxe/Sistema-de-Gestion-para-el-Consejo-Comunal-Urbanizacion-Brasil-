@@ -17,7 +17,7 @@ require_once __DIR__ . '/../plantilla/header.php';
 <h2>Listado de Personas</h2>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <a href="/personas/crear" class="btn btn-primary">
+    <a href="./personas/crear" class="btn btn-primary">
         <i class="fas fa-plus"></i> Nueva Persona
     </a>
 </div>
@@ -53,10 +53,10 @@ require_once __DIR__ . '/../plantilla/header.php';
                         <td><?= htmlspecialchars($persona['estado'] ?? '-') ?></td>
                         <td>
                             <div class="btn-group">
-                                <a href="/personas/editar/<?= htmlspecialchars($persona['id_persona'] ?? '') ?>" class="btn btn-sm btn-primary">
+                                <a href="./personas/editar/<?= htmlspecialchars($persona['id_persona'] ?? '') ?>" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="/personas/eliminar/<?= htmlspecialchars($persona['id_persona'] ?? '') ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta persona?')">
+                                <a href="./personas/eliminar/<?= htmlspecialchars($persona['id_persona'] ?? '') ?>" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar esta persona?')">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </div>

@@ -20,7 +20,7 @@ session_start();
                         Bienvenido
                     </div>
                     <div class="card-body">
-                        <form action="/login" method="POST">
+                        <form action=". /login" method="POST">
                             <div class="mb-4">
                                 <label for="cedula" class="form-label">
                                     <i class="fas fa-user-circle"></i> Cédula:
