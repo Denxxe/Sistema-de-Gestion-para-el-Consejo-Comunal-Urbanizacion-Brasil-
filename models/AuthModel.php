@@ -2,15 +2,13 @@
 namespace App\models;
 
 use PDO;
-use App\Core\Database;
 use PDOException;
-use Exception;
+use App\Core\DatabaseInterface;
 
 class AuthModel {
     private PDO $db;
 
-    public function __construct() {
-        $database = new Database();
+    public function __construct(DatabaseInterface $database) {
         $this->db = $database->connect();
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }

@@ -2,8 +2,8 @@
 namespace App\models;
 
 use PDO;
-use App\Core\Database;
 use PDOException;
+use App\Core\DatabaseInterface;
 
 class HabitanteViviendaModel {
     private PDO $db;
@@ -15,8 +15,7 @@ class HabitanteViviendaModel {
     private string $fecha_inicio;
     private ?string $fecha_salida = null;
 
-    public function __construct() {
-        $database = new Database();
+    public function __construct(DatabaseInterface $database) {
         $this->db = $database->connect();
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }

@@ -2,8 +2,8 @@
 namespace App\models;
 
 use PDO;
-use App\Core\Database;
 use PDOException;
+use App\Core\DatabaseInterface;
 
 class ComentarioModel {
     private PDO $db;
@@ -18,8 +18,7 @@ class ComentarioModel {
     private string $fecha_registro;
     private string $fecha_actualizacion;
 
-    public function __construct() {
-        $database = new Database();
+    public function __construct(DatabaseInterface $database) {
         $this->db = $database->connect();
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }

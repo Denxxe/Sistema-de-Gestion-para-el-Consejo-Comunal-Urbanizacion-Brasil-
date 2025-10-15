@@ -2,25 +2,30 @@
 namespace App\Core;
 use PDO;
 use PDOException;
-class Database {
+use App\Core\DatabaseInterface;
+
+class Database implements DatabaseInterface {
     private $conn;
 
-    public function connect() {
+    public function connect(): PDO {
         try {
-            $driver = $_ENV['DB_DRIVER'];       // pgsql o mysql
-            $host   = $_ENV['DB_HOST'];
-            $port   = $_ENV['DB_PORT'];
-            $dbname = $_ENV['DB_NAME'];
-            $user   = $_ENV['DB_USER'];
-            $pass   = $_ENV['DB_PASS'];
+            if ($this->conn === null) {
+                $driver = $_ENV['DB_DRIVER'];
+                $host   = $_ENV['DB_HOST'];
+                $port   = $_ENV['DB_PORT'];
+                $dbname = $_ENV['DB_NAME'];
+                $user   = $_ENV['DB_USER'];
+                $pass   = $_ENV['DB_PASS'];
 
-            $dsn = "$driver:host=$host;port=$port;dbname=$dbname";
-            $this->conn = new PDO($dsn, $user, $pass);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+                $dsn = "$driver:host=$host;port=$port;dbname=$dbname";
+                $this->conn = new PDO($dsn, $user, $pass);
+                $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            }
             return $this->conn;
         } catch (PDOException $e) {
-            die("Error de conexión: " . $e->getMessage());
+            error_log("Error de conexión: " . $e->getMessage());
+            throw new \RuntimeException("Error al conectar con la base de datos", 0, $e);
         }
     }
 }
