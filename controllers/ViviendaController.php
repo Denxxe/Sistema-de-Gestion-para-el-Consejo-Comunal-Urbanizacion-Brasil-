@@ -3,11 +3,11 @@ namespace App\controllers;
 
 use App\models\ViviendaModel;
 use App\Core\Response;
-
+use App\Core\Database;
 class ViviendaController {
     public function listar($filtros = null): array {
         try {
-            $vivienda = new ViviendaModel();
+            $vivienda = new ViviendaModel(new Database());
             $filtros = $filtros ?? [];
             $viviendas = $vivienda->listar($filtros);
             
@@ -23,7 +23,7 @@ class ViviendaController {
 
     public function obtenerPorId($id): array {
         try {
-            $vivienda = new ViviendaModel();
+            $vivienda = new ViviendaModel(new Database());
             $vivienda->setId_vivienda($id);
             $vivienda = $vivienda->obtenerPorId($id);
             
@@ -52,7 +52,7 @@ class ViviendaController {
         }
 
         try {
-            $vivienda = new ViviendaModel();
+            $vivienda = new ViviendaModel(new Database());
 
             $vivienda->setDireccion($datos['direccion']);
             $vivienda->setNumero($datos['numero']);
@@ -88,7 +88,7 @@ class ViviendaController {
         }
 
         try {
-            $vivienda = new ViviendaModel();
+            $vivienda = new ViviendaModel(new Database());
             $vivienda->setId_vivienda($id);
 
             // Actualizar solo los campos proporcionados
@@ -110,7 +110,7 @@ class ViviendaController {
 
     public function eliminar($id): array {
         try {
-            $vivienda = new ViviendaModel();
+            $vivienda = new ViviendaModel(new Database());
             $vivienda->setId_vivienda($id);
 
             if ($vivienda->eliminar()) {
@@ -125,7 +125,7 @@ class ViviendaController {
 
     public function contar($filtros = null): array {
         try {
-            $vivienda = new ViviendaModel();
+            $vivienda = new ViviendaModel(new Database());
             $filtros = $filtros ?? [];
             $total = $vivienda->contar($filtros);
 

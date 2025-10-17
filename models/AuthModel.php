@@ -4,6 +4,7 @@ namespace App\models;
 use PDO;
 use PDOException;
 use App\Core\DatabaseInterface;
+use Exception;
 
 class AuthModel {
     private PDO $db;

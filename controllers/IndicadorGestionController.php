@@ -5,12 +5,13 @@ use App\models\IndicadorGestionModel;
 use App\models\UsuarioModel;
 use App\models\PagoModel;
 use App\Core\Response;
+use App\Core\Database;
 
 class IndicadorGestionController {
 
     public function listar($filtros = null): array {
         try {
-            $model = new IndicadorGestionModel();
+            $model = new IndicadorGestionModel(new Database());
             $filtros = $filtros ?? [];
             $data = $model->listar($filtros);
             if (empty($data)) {
@@ -24,7 +25,7 @@ class IndicadorGestionController {
 
     public function obtenerPorId($id): array {
         try {
-            $model = new IndicadorGestionModel();
+            $model = new IndicadorGestionModel(new Database());
             $info = $model->obtenerPorId($id);
             if (!$info) {
                 return Response::response404('Indicador no encontrado');
@@ -47,7 +48,7 @@ class IndicadorGestionController {
             return Response::response400('Los campos nombre y valor son obligatorios');
         }
         try {
-            $model = new IndicadorGestionModel();
+            $model = new IndicadorGestionModel(new Database());
             $model->setNombre($datos['nombre']);
             $model->setDescripcion($datos['descripcion'] ?? '');
             $model->setValor($datos['valor']);
@@ -71,7 +72,7 @@ class IndicadorGestionController {
             return Response::response400('No se recibieron datos');
         }
         try {
-            $model = new IndicadorGestionModel();
+            $model = new IndicadorGestionModel(new Database());
             $model->setId_indicador($id);
             // establecemos valores solo si existen en $datos para permitir actualizaciones parciales
             if (isset($datos['nombre'])) $model->setNombre($datos['nombre']);
@@ -91,7 +92,7 @@ class IndicadorGestionController {
 
     public function eliminar($id): array {
         try {
-            $model = new IndicadorGestionModel();
+            $model = new IndicadorGestionModel(new Database());
             $model->setId_indicador($id);
             if ($model->eliminar()) {
                 return Response::response204('Indicador eliminado');
@@ -104,7 +105,7 @@ class IndicadorGestionController {
 
     public function contar($filtros = null): array {
         try {
-            $model = new IndicadorGestionModel();
+            $model = new IndicadorGestionModel(new Database());
             $total = $model->contar($filtros ?? []);
             return Response::response200('Conteo realizado', ['total' => $total]);
         } catch (\Exception $e) {
@@ -119,11 +120,11 @@ class IndicadorGestionController {
     public function basicos(): array {
         try {
             // total usuarios
-            $usuarioModel = new \App\models\UsuarioModel();
+            $usuarioModel = new \App\models\UsuarioModel(new Database());
             $totalUsuarios = $usuarioModel->contar([]);
 
             // total pagos
-            $pagoModel = new \App\models\PagoModel();
+            $pagoModel = new \App\models\PagoModel(new Database());
             $totalPagos = $pagoModel->contar([]);
 
             $data = [

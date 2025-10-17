@@ -3,12 +3,13 @@ namespace App\controllers;
 
 use App\models\ParticipacionEventoModel;
 use App\Core\Response;
+use App\Core\Database;
 
 class ParticipacionEventoController {
 
     public function listar($filtros = null): array {
         try {
-            $model = new ParticipacionEventoModel();
+            $model = new ParticipacionEventoModel(new Database());
             $filtros = $filtros ?? [];
             $data = $model->listar($filtros);
             if (empty($data)) {
@@ -22,7 +23,7 @@ class ParticipacionEventoController {
 
     public function obtenerPorId($id): array {
         try {
-            $model = new ParticipacionEventoModel();
+            $model = new ParticipacionEventoModel(new Database());
             $info = $model->obtenerPorId($id);
             if (!$info) {
                 return Response::response404('Participación no encontrada');
@@ -50,7 +51,7 @@ class ParticipacionEventoController {
         }
         
         try {
-            $model = new ParticipacionEventoModel();
+            $model = new ParticipacionEventoModel(new Database());
             $model->setId_evento($datos['id_evento']);
             $model->setId_usuario($datos['id_usuario']);
 
@@ -74,7 +75,7 @@ class ParticipacionEventoController {
         }
         
         try {
-            $model = new ParticipacionEventoModel();
+            $model = new ParticipacionEventoModel(new Database());
             $participacion = $model->obtenerPorId($id);
             
             if (!$participacion) {
@@ -97,7 +98,7 @@ class ParticipacionEventoController {
 
     public function eliminar($id): array {
         try {
-            $model = new ParticipacionEventoModel();
+            $model = new ParticipacionEventoModel(new Database());
             $participacion = $model->obtenerPorId($id);
             
             if (!$participacion) {
@@ -116,7 +117,7 @@ class ParticipacionEventoController {
 
     public function contar($filtros = null): array {
         try {
-            $model = new ParticipacionEventoModel();
+            $model = new ParticipacionEventoModel(new Database());
             $total = $model->contar($filtros ?? []);
             return Response::response200('Conteo realizado', ['total' => $total]);
         } catch (\Exception $e) {

@@ -3,12 +3,13 @@ namespace App\controllers;
 
 use App\models\EventoModel;
 use App\Core\Response;
+use App\Core\Database;
 
 class EventoController {
 
     public function listar($filtros = null): array {
         try {
-            $evento = new EventoModel();
+            $evento = new EventoModel(new Database());
             $filtros = $filtros ?? [];
             $data = $evento->listar($filtros);
             if (empty($data)) {
@@ -22,7 +23,7 @@ class EventoController {
 
     public function obtenerPorId($id): array {
         try {
-            $evento = new EventoModel();
+            $evento = new EventoModel(new Database());
             $info = $evento->obtenerPorId($id);
             if (!$info) {
                 return Response::response404('Evento no encontrado');
@@ -42,7 +43,7 @@ class EventoController {
         }
         
         try {
-            $evento = new EventoModel();
+            $evento = new EventoModel(new Database());
             $evento->setTitulo($datos['titulo']);
             $evento->setDescripcion($datos['descripcion']);
             $evento->setFecha_evento($datos['fecha_evento']);
@@ -69,7 +70,7 @@ class EventoController {
         }
         
         try {
-            $evento = new EventoModel();
+            $evento = new EventoModel(new Database());
             $evento->setId_evento($id);
             
             if (isset($datos['titulo'])) $evento->setTitulo($datos['titulo']);
@@ -90,7 +91,7 @@ class EventoController {
 
     public function eliminar($id): array {
         try {
-            $evento = new EventoModel();
+            $evento = new EventoModel(new Database());
             $evento->setId_evento($id);
             if ($evento->eliminar()) {
                 return Response::response204('Evento eliminado');
@@ -103,7 +104,7 @@ class EventoController {
 
     public function contar($filtros = null): array {
         try {
-            $evento = new EventoModel();
+            $evento = new EventoModel(new Database());
             $total = $evento->contar($filtros ?? []);
             return Response::response200('Conteo realizado', ['total' => $total]);
         } catch (\Exception $e) {

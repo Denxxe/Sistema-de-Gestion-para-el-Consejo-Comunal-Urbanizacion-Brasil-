@@ -3,12 +3,13 @@ namespace App\controllers;
 
 use App\models\ConceptoPagoModel;
 use App\Core\Response;
+use App\Core\Database;
 
 class ConceptoPagoController {
 
     public function listar($filtros = null): array {
         try {
-            $model = new ConceptoPagoModel();
+            $model = new ConceptoPagoModel(new Database());
             $filtros = $filtros ?? [];
             $data = $model->listar($filtros);
             if (empty($data)) {
@@ -22,7 +23,7 @@ class ConceptoPagoController {
 
     public function obtenerPorId($id): array {
         try {
-            $model = new ConceptoPagoModel();
+            $model = new ConceptoPagoModel(new Database());
             $info = $model->obtenerPorId($id);
             if (!$info) {
                 return Response::response404('Concepto de pago no encontrado');
@@ -54,7 +55,7 @@ class ConceptoPagoController {
         }
         
         try {
-            $model = new ConceptoPagoModel();
+            $model = new ConceptoPagoModel(new Database());
             $model->setNombre($datos['nombre']);
             $model->setMonto($datos['monto']);
             if (isset($datos['descripcion'])) {
@@ -81,7 +82,7 @@ class ConceptoPagoController {
         }
         
         try {
-            $model = new ConceptoPagoModel();
+            $model = new ConceptoPagoModel(new Database());
             $concepto = $model->obtenerPorId($id);
             
             if (!$concepto) {
@@ -105,7 +106,7 @@ class ConceptoPagoController {
 
     public function eliminar($id): array {
         try {
-            $model = new ConceptoPagoModel();
+            $model = new ConceptoPagoModel(new Database());
             $concepto = $model->obtenerPorId($id);
             
             if (!$concepto) {
@@ -124,7 +125,7 @@ class ConceptoPagoController {
 
     public function contar($filtros = null): array {
         try {
-            $model = new ConceptoPagoModel();
+            $model = new ConceptoPagoModel(new Database());
             $total = $model->contar($filtros ?? []);
             return Response::response200('Conteo realizado', ['total' => $total]);
         } catch (\Exception $e) {

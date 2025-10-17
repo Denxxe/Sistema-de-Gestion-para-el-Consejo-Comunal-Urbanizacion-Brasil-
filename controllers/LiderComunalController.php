@@ -3,12 +3,13 @@ namespace App\controllers;
 
 use App\models\LiderComunalModel;
 use App\Core\Response;
+use App\Core\Database;
 
 class LiderComunalController {
 
     public function listar($filtros = null): array {
         try {
-            $model = new LiderComunalModel();
+            $model = new LiderComunalModel(new Database());
             $filtros = $filtros ?? [];
             $data = $model->listar($filtros);
             if (empty($data)) {
@@ -22,7 +23,7 @@ class LiderComunalController {
 
     public function obtenerPorId($id): array {
         try {
-            $model = new LiderComunalModel();
+            $model = new LiderComunalModel(new Database());
             $info = $model->obtenerPorId($id);
             if (!$info) {
                 return Response::response404('Líder comunal no encontrado');
@@ -50,7 +51,7 @@ class LiderComunalController {
         }
         
         try {
-            $model = new LiderComunalModel();
+            $model = new LiderComunalModel(new Database());
             $model->setId_habitante($datos['id_habitante']);
             $model->setFecha_inicio($datos['fecha_inicio']);
             
@@ -81,7 +82,7 @@ class LiderComunalController {
         }
         
         try {
-            $model = new LiderComunalModel();
+            $model = new LiderComunalModel(new Database());
             $lider = $model->obtenerPorId($id);
             
             if (!$lider) {
@@ -105,7 +106,7 @@ class LiderComunalController {
 
     public function eliminar($id): array {
         try {
-            $model = new LiderComunalModel();
+            $model = new LiderComunalModel(new Database());
             $lider = $model->obtenerPorId($id);
             
             if (!$lider) {
@@ -124,7 +125,7 @@ class LiderComunalController {
 
     public function contar($filtros = null): array {
         try {
-            $model = new LiderComunalModel();
+            $model = new LiderComunalModel(new Database() );
             $total = $model->contar($filtros ?? []);
             return Response::response200('Conteo realizado', ['total' => $total]);
         } catch (\Exception $e) {

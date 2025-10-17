@@ -3,13 +3,14 @@ namespace App\controllers;
 
 use App\models\HabitanteModel;
 use App\Core\Response;
+use App\Core\Database;
 
 class HabitanteController 
 {
     public function listar($filtros = null): array 
     {
         try {
-            $habitante = new HabitanteModel();
+            $habitante = new HabitanteModel(new Database());
             $filtros = $filtros ?? [];
             $habitantes = $habitante->listar($filtros);
             
@@ -26,7 +27,7 @@ class HabitanteController
     public function obtenerPorId($id): array 
     {
         try {
-            $habitante = new HabitanteModel();
+            $habitante = new HabitanteModel(new Database());
             $habitante->setId_habitante($id);
             $habitante = $habitante->obtenerPorId($id);
             
@@ -54,7 +55,7 @@ class HabitanteController
         }
 
         try {
-            $habitante = new HabitanteModel();
+            $habitante = new HabitanteModel(new Database());
 
              $habitante->setId_persona($datos['id_persona']);
              $habitante->setFecha_ingreso($datos['fecha_ingreso'] ?? null);
@@ -81,7 +82,7 @@ class HabitanteController
         }
 
         try {
-            $habitante = new HabitanteModel();
+            $habitante = new HabitanteModel(new Database());
             $habitante->setId_habitante($id);
 
             // Actualizar solo los campos proporcionados
@@ -101,7 +102,7 @@ class HabitanteController
 
     public function eliminar($id): array {
         try {
-             $habitante = new HabitanteModel();
+             $habitante = new HabitanteModel(new Database());
              $habitante->setId_habitante($id);
 
             if ( $habitante->eliminar()) {
@@ -116,7 +117,7 @@ class HabitanteController
 
     public function contar($filtros = null): array {
         try {
-             $habitante = new HabitanteModel();
+             $habitante = new HabitanteModel(new Database());
             $filtros = $filtros ?? [];
             $total =  $habitante->contar($filtros);
 

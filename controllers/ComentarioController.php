@@ -3,12 +3,13 @@ namespace App\controllers;
 
 use App\models\ComentarioModel;
 use App\Core\Response;
+use App\Core\Database;
 
 class ComentarioController {
 
     public function listar($filtros = null): array {
         try {
-            $model = new ComentarioModel();
+            $model = new ComentarioModel(new Database());
             $filtros = $filtros ?? [];
             $data = $model->listar($filtros);
             if (empty($data)) {
@@ -22,7 +23,7 @@ class ComentarioController {
 
     public function obtenerPorId($id): array {
         try {
-            $model = new ComentarioModel();
+            $model = new ComentarioModel(new Database());
             $info = $model->obtenerPorId($id);
             if (!$info) {
                 return Response::response404('Comentario no encontrado');
@@ -42,7 +43,7 @@ class ComentarioController {
         }
         
         try {
-            $model = new ComentarioModel();
+            $model = new ComentarioModel(new Database());
             $model->setId_usuario($datos['id_usuario']);
             $model->setId_comunicado($datos['id_comunicado']);
             $model->setContenido($datos['comentario']);
@@ -66,7 +67,7 @@ class ComentarioController {
         }
         
         try {
-            $model = new ComentarioModel();
+            $model = new ComentarioModel(new Database());
             $model->setId_comentario($id);
             
             if (isset($datos['comentario'])) $model->setContenido($datos['comentario']);
@@ -83,7 +84,7 @@ class ComentarioController {
 
     public function eliminar($id): array {
         try {
-            $model = new ComentarioModel();
+            $model = new ComentarioModel(new Database());
             $model->setId_comentario($id);
             if ($model->eliminar()) {
                 return Response::response204('Comentario eliminado');
@@ -96,7 +97,7 @@ class ComentarioController {
 
     public function contar($filtros = null): array {
         try {
-            $model = new ComentarioModel();
+            $model = new ComentarioModel(new Database());
             $total = $model->contar($filtros ?? []);
             return Response::response200('Conteo realizado', ['total' => $total]);
         } catch (\Exception $e) {

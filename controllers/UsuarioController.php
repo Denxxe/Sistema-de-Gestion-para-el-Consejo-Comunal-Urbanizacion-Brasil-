@@ -3,13 +3,13 @@ namespace App\controllers;
 
 use App\models\UsuarioModel;
 use App\Core\Response;
-
+use App\Core\Database;
 class UsuarioController
 {
     public function listar($filtros = null): array
     {
         try {
-            $usuario = new UsuarioModel();
+            $usuario = new UsuarioModel(new Database());
             $filtros = $filtros ?? [];
             $usuarios = $usuario->listar($filtros);
             
@@ -26,7 +26,7 @@ class UsuarioController
     public function obtenerPorId($id): array
     {
         try {
-            $usuario = new UsuarioModel();
+            $usuario = new UsuarioModel(new Database());
             $usuario->setId_usuario($id);
             $usuarioData = $usuario->obtenerPorId($id);
             
@@ -56,7 +56,7 @@ class UsuarioController
         }
 
         try {
-            $usuario = new UsuarioModel();
+            $usuario = new UsuarioModel(new Database());
             
             $usuario->setId_persona($datos['id_persona']);
             $usuario->setId_rol($datos['id_rol']);
@@ -85,7 +85,7 @@ class UsuarioController
         }
 
         try {
-            $usuario = new UsuarioModel();
+            $usuario = new UsuarioModel(new Database());
             $usuario->setId_usuario($id);
 
             if (empty($datos['id_persona']) || empty($datos['id_rol'])) {
@@ -114,7 +114,7 @@ class UsuarioController
     public function eliminar($id): array
     {
         try {
-            $usuario = new UsuarioModel();
+            $usuario = new UsuarioModel(new Database());
             $usuario->setId_usuario($id);
             
             if ($usuario->eliminar()) {
@@ -142,7 +142,7 @@ class UsuarioController
                 return Response::response400('Faltan datos requeridos');
             }
 
-            $usuario = new UsuarioModel();
+            $usuario = new UsuarioModel(new Database());
             $usuario->setId_usuario($id);
             $usuarioData = $usuario->obtenerPorId($id);
             
@@ -164,7 +164,7 @@ class UsuarioController
 
     public function contar($filtros = null): array {
         try {
-             $habitante = new UsuarioModel();
+             $habitante = new UsuarioModel(new Database());
             $filtros = $filtros ?? [];
             $total =  $habitante->contar($filtros);
 

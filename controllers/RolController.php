@@ -3,11 +3,12 @@ namespace App\controllers;
 
 use App\models\RolModel;
 use App\Core\Response;
+use App\Core\Database;
 class RolController {
 
     public function listar($filtros = null): array {
         try {
-            $rol = new RolModel();
+            $rol = new RolModel(new Database());
             $filtros = $filtros ?? [];
             $roles = $rol->listar($filtros);
             
@@ -23,7 +24,7 @@ class RolController {
 
     public function obtenerPorId($id): array {
         try {
-            $rol = new RolModel();
+            $rol = new RolModel(new Database());
             $rol->setId_rol($id);
             $rol = $rol->obtenerPorId($id);
             
@@ -52,7 +53,7 @@ class RolController {
         }
 
         try {
-            $rol = new RolModel();
+            $rol = new RolModel(new Database());
 
             $rol->setNombre($datos['nombre']);
             $rol->setDescripcion($datos['descripcion']);
@@ -84,7 +85,7 @@ class RolController {
         }
 
         try {
-            $rol = new RolModel();
+            $rol = new RolModel(new Database());
             $rol->setId_Rol($id);
 
             // Actualizar solo los campos proporcionados
@@ -103,7 +104,7 @@ class RolController {
 
     public function eliminar($id): array {
         try {
-            $rol = new RolModel();
+            $rol = new RolModel(new Database());
             $rol->setId_Rol($id);
 
             if ($rol->eliminar()) {
@@ -118,7 +119,7 @@ class RolController {
 
     public function contar($filtros = null): array {
         try {
-            $rol = new RolModel();
+            $rol = new RolModel(new Database());
             $filtros = $filtros ?? [];
             $total = $rol->contar($filtros);
 

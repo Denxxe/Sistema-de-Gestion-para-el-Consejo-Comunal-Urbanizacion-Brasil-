@@ -3,12 +3,13 @@ namespace App\controllers;
 
 use App\models\ComunicadoModel;
 use App\Core\Response;
+use App\Core\Database;
 
 class ComunicadoController {
 
     public function listar($filtros = null): array {
         try {
-            $model = new ComunicadoModel();
+            $model = new ComunicadoModel(new Database());
             $filtros = $filtros ?? [];
             $data = $model->listar($filtros);
             if (empty($data)) {
@@ -22,7 +23,7 @@ class ComunicadoController {
 
     public function obtenerPorId($id): array {
         try {
-            $model = new ComunicadoModel();
+            $model = new ComunicadoModel(new Database());
             $info = $model->obtenerPorId($id);
             if (!$info) {
                 return Response::response404('Comunicado no encontrado');
@@ -50,7 +51,7 @@ class ComunicadoController {
         }
         
         try {
-            $model = new ComunicadoModel();
+            $model = new ComunicadoModel(new Database());
             $model->setId_usuario($datos['id_usuario']);
             $model->setTitulo($datos['titulo']);
             $model->setContenido($datos['contenido']);
@@ -77,7 +78,7 @@ class ComunicadoController {
         }
         
         try {
-            $model = new ComunicadoModel();
+            $model = new ComunicadoModel(new Database());
             $comunicado = $model->obtenerPorId($id);
             
             if (!$comunicado) {
@@ -102,7 +103,7 @@ class ComunicadoController {
 
     public function eliminar($id): array {
         try {
-            $model = new ComunicadoModel();
+            $model = new ComunicadoModel(new Database());
             $comunicado = $model->obtenerPorId($id);
             
             if (!$comunicado) {
@@ -121,7 +122,7 @@ class ComunicadoController {
 
     public function contar($filtros = null): array {
         try {
-            $model = new ComunicadoModel();
+            $model = new ComunicadoModel(new Database());
             $total = $model->contar($filtros ?? []);
             return Response::response200('Conteo realizado', ['total' => $total]);
         } catch (\Exception $e) {

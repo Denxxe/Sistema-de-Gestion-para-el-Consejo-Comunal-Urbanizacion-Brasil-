@@ -17,10 +17,12 @@ class UsuarioModel {
     private bool $activo = true;
     private string $fecha_registro;
     private string $fecha_actualizacion;
+    private AuthModel $auth;
 
-    public function __construct(DatabaseInterface $database) {
-        $this->db = $database->connect();
+    public function __construct(DatabaseInterface $databaseInterface, AuthModel $auth = null) {
+        $this->db = $databaseInterface->connect();
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->auth = $auth ?? new AuthModel($databaseInterface);
     }
     
     // Métodos CRUD
@@ -96,11 +98,30 @@ class UsuarioModel {
             if (empty($this->contrasena)) {
                 throw new \InvalidArgumentException("La contraseña es obligatoria");
             }
+            
+            if (empty($this->id_rol)) {
+                throw new \InvalidArgumentException("El rol es obligatorio");
+            }
+
+            if (empty($this->id_persona)) {
+                throw new \InvalidArgumentException("La persona es obligatoria");
+            }
+
+            if (empty($this->nombre)) {
+                throw new \InvalidArgumentException("El nombre es obligatorio");
+            }
+
+            if (empty($this->apellido)) {
+                throw new \InvalidArgumentException("El apellido es obligatorio");
+            }
+
+            if (empty($this->cedula)) {
+                throw new \InvalidArgumentException("La cedula es obligatoria");
+            }
 
             // Usar AuthModel para validar y hashear
-            $auth = new AuthModel($this->db);
-            $auth->validatePassword($this->contrasena);
-            $hashContrasena = $auth->hashPassword($this->contrasena);
+            $this->auth->validatePassword($this->contrasena);
+            $hashContrasena = $this->auth->hashPassword($this->contrasena);
 
             $sql = "INSERT INTO usuario (
                     id_persona, 
@@ -168,9 +189,8 @@ class UsuarioModel {
             
             // Solo actualizar contraseña si se proporciona una nueva
             if (!empty($this->contrasena)) {
-                $auth = new AuthModel();
-                $auth->validatePassword($this->contrasena);
-                $hashContrasena = $auth->hashPassword($this->contrasena);
+                $this->auth->validatePassword($this->contrasena);
+                $hashContrasena = $this->auth->hashPassword($this->contrasena);
                 $stmt->bindValue(':contrasena', $hashContrasena);
             }
             

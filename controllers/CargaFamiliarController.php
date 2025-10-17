@@ -3,12 +3,13 @@ namespace App\controllers;
 
 use App\models\CargaFamiliarModel;
 use App\Core\Response;
+use App\Core\Database;
 
 class CargaFamiliarController {
 
     public function listar($filtros = null): array {
         try {
-            $model = new CargaFamiliarModel();
+            $model = new CargaFamiliarModel(new Database());
             $filtros = $filtros ?? [];
             $data = $model->listar($filtros);
             if (empty($data)) {
@@ -22,7 +23,7 @@ class CargaFamiliarController {
 
     public function obtenerPorId($id): array {
         try {
-            $model = new CargaFamiliarModel();
+            $model = new CargaFamiliarModel(new Database());
             $info = $model->obtenerPorId($id);
             if (!$info) {
                 return Response::response404('Carga familiar no encontrada');
@@ -50,7 +51,7 @@ class CargaFamiliarController {
         }
         
         try {
-            $model = new CargaFamiliarModel();
+            $model = new CargaFamiliarModel(new Database());
             $model->setId_habitante($datos['id_habitante']);
             $model->setId_jefe($datos['id_jefe']);
             $model->setParentesco($datos['parentesco']);
@@ -75,7 +76,7 @@ class CargaFamiliarController {
         }
         
         try {
-            $model = new CargaFamiliarModel();
+            $model = new CargaFamiliarModel(new Database());
             $carga = $model->obtenerPorId($id);
             
             if (!$carga) {
@@ -99,7 +100,7 @@ class CargaFamiliarController {
     
     public function eliminar($id): array {
         try {
-            $model = new CargaFamiliarModel();
+            $model = new CargaFamiliarModel(new Database());
             $carga = $model->obtenerPorId($id);
             
             if (!$carga) {
@@ -118,7 +119,7 @@ class CargaFamiliarController {
 
     public function contar($filtros = null): array {
         try {
-            $model = new CargaFamiliarModel();
+            $model = new CargaFamiliarModel(new Database());
             $total = $model->contar($filtros ?? []);
             return Response::response200('Conteo realizado', ['total' => $total]);
         } catch (\Exception $e) {

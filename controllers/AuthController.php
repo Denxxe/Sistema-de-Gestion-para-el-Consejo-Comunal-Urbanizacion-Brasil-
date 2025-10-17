@@ -3,6 +3,7 @@ namespace App\controllers;
 
 use App\models\AuthModel;
 use Exception;
+use App\Core\Database;
 
 class AuthController
 {
@@ -25,7 +26,7 @@ class AuthController
                 exit;
             }
 
-            $authModel = new AuthModel();
+            $authModel = new AuthModel(new Database());
             $user = $authModel->login($cedula, $password);
 
             if ($user) {

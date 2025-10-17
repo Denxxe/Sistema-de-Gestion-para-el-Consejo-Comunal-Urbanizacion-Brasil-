@@ -3,11 +3,12 @@ namespace App\controllers;
 
 use App\models\PersonaModel;
 use App\Core\Response;
+use App\Core\Database;
 
 class PersonaController {
     public function listar($filtros = null): array {
         try {
-            $persona = new PersonaModel();
+            $persona = new PersonaModel(new Database());
             $filtros = $filtros ?? [];
             $personas = $persona->listar($filtros);
             
@@ -23,7 +24,7 @@ class PersonaController {
 
     public function obtenerPorId($id): array {
         try {
-            $persona = new PersonaModel();
+            $persona = new PersonaModel(new Database());
             $persona->setIdPersona($id);
             $persona = $persona->obtenerPorId($id);
             
@@ -52,7 +53,7 @@ class PersonaController {
         }
 
         try {
-            $persona = new PersonaModel();
+            $persona = new PersonaModel(new Database());
 
             $persona->setCedula($datos['cedula']);
             $persona->setNombres($datos['nombres']);
@@ -96,7 +97,7 @@ class PersonaController {
         }
 
         try {
-            $persona = new PersonaModel();
+            $persona = new PersonaModel(new Database());
             $persona->setIdPersona($id);
 
             // Actualizar solo los campos proporcionados
@@ -122,7 +123,7 @@ class PersonaController {
 
     public function eliminar($id): array {
         try {
-            $persona = new PersonaModel();
+            $persona = new PersonaModel(new Database());
             $persona->setIdPersona($id);
 
             if ($persona->eliminar()) {
@@ -137,7 +138,7 @@ class PersonaController {
 
     public function contar($filtros = null): array {
         try {
-            $persona = new PersonaModel();
+            $persona = new PersonaModel(new Database());
             $filtros = $filtros ?? [];
             $total = $persona->contar($filtros);
 
