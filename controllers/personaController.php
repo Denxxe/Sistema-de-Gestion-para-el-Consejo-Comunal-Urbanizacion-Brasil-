@@ -59,10 +59,10 @@ class PersonaController {
             $persona->setNombres($datos['nombres']);
             $persona->setApellidos($datos['apellidos']);
             $persona->setFecha_nacimiento($datos['fecha_nacimiento'] ?? null);
-            $persona->setSexo($datos['sexo'] ?? null);
+            $persona->setGenero($datos['genero'] ?? null);
             $persona->setTelefono($datos['telefono'] ?? null);
             $persona->setDireccion($datos['direccion'] ?? null);
-            $persona->setCorreo($datos['correo'] ?? null);
+            $persona->setEmail($datos['email'] ?? null);
             $persona->setEstado($datos['estado'] ?? null);
 
             if ($persona->crear()) {
@@ -72,10 +72,10 @@ class PersonaController {
                     'nombres' => $persona->getNombres(),
                     'apellidos' => $persona->getApellidos(),
                     'fecha_nacimiento' => $persona->getFecha_nacimiento(),
-                    'sexo' => $persona->getSexo(),
+                    'genero' => $persona->getGenero(),
                     'telefono' => $persona->getTelefono(),
                     'direccion' => $persona->getDireccion(),
-                    'correo' => $persona->getCorreo(),
+                    'email' => $persona->getEmail(),
                     'estado' => $persona->getEstado()
                 ];
                 return Response::response201('Persona creada exitosamente', $datos_persona);
@@ -105,10 +105,10 @@ class PersonaController {
             if (isset($datos['nombres'])) $persona->setNombres($datos['nombres']);
             if (isset($datos['apellidos'])) $persona->setApellidos($datos['apellidos']);
             if (isset($datos['fecha_nacimiento'])) $persona->setFecha_nacimiento($datos['fecha_nacimiento']);
-            if (isset($datos['sexo'])) $persona->setSexo($datos['sexo']);
+            if (isset($datos['genero'])) $persona->setGenero($datos['genero']);
             if (isset($datos['telefono'])) $persona->setTelefono($datos['telefono']);
             if (isset($datos['direccion'])) $persona->setDireccion($datos['direccion']);
-            if (isset($datos['correo'])) $persona->setCorreo($datos['correo']);
+            if (isset($datos['email'])) $persona->setEmail($datos['email']);
             if (isset($datos['estado'])) $persona->setEstado($datos['estado']);
 
             if ($persona->actualizar()) {

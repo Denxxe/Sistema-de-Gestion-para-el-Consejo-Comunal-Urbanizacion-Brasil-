@@ -2,11 +2,19 @@
 namespace App\controllers;
 
 use App\models\HabitanteModel;
+use App\models\PersonaModel;
 use App\Core\Response;
 use App\Core\Database;
 
-class HabitanteController 
-{
+class HabitanteController {
+    private $habitanteModel;
+    private $personaModel;
+
+    public function __construct() {
+        $database = new Database();
+        $this->habitanteModel = new HabitanteModel($database);
+        $this->personaModel = new PersonaModel($database);
+    }
     public function listar($filtros = null): array 
     {
         try {
@@ -59,7 +67,7 @@ class HabitanteController
 
              $habitante->setId_persona($datos['id_persona']);
              $habitante->setFecha_ingreso($datos['fecha_ingreso'] ?? null);
-             $habitante->setCondicion($datos['condicion'] ?? null);
+             $habitante->setActivo($datos['activo'] ?? null);
              $datos_habitante = $habitante->crear();
              
             if ($datos_habitante) {
@@ -86,7 +94,7 @@ class HabitanteController
             $habitante->setId_habitante($id);
 
             // Actualizar solo los campos proporcionados
-            if (isset($datos['condicion']))  $habitante->setCondicion($datos['condicion']);
+            if (isset($datos['activo']))  $habitante->setActivo($datos['activo']);
             if (isset($datos['id_persona']))  $habitante->setId_persona($datos['id_persona']);
             if (isset($datos['fecha_ingreso']))  $habitante->setFecha_ingreso($datos['fecha_ingreso']);
 

@@ -11,8 +11,37 @@ class HabitanteModel {
     // Atributos
     private int $id_habitante;
     private int $id_persona;
-    private ?string $fecha_ingreso;
-    private ?string $condicion = 'ACTIVO';
+    private ?int $id_vivienda = null;
+    private string $fecha_ingreso;
+    private bool $es_jefe_familia = false;
+    private ?string $profesion = null;
+    private ?string $nivel_instruccion = null;
+    private ?string $estado_civil = null;
+    private ?string $lugar_nacimiento = null;
+    private string $nacionalidad = 'VENEZOLANA';
+    private ?string $tipo_sangre = null;
+    private ?string $grupo_sanguineo = null;
+    private ?string $seguro_social = null;
+    private ?string $codigo_carnet_patria = null;
+    private ?string $contacto_emergencia_nombre = null;
+    private ?string $contacto_emergencia_telefono = null;
+    private ?string $contacto_emergencia_parentesco = null;
+    private ?string $ocupacion_actual = null;
+    private ?string $lugar_trabajo = null;
+    private ?string $telefono_trabajo = null;
+    private ?float $ingresos_mensuales = null;
+    private ?string $titulo_obtenido = null;
+    private ?string $institucion_educativa = null;
+    private bool $discapacidad = false;
+    private ?string $tipo_discapacidad = null;
+    private bool $requiere_atencion_especial = false;
+    private ?string $observaciones_salud = null;
+    private ?string $nombre_conyuge = null;
+    private int $cantidad_hijos = 0;
+    private int $cantidad_otros_dependientes = 0;
+    private ?int $tiempo_residencia_anios = null;
+    private ?int $tiempo_residencia_meses = null;
+    private ?string $condicion_ocupacion = null;
     private bool $activo = true;
     private string $fecha_registro;
     private string $fecha_actualizacion;
@@ -21,13 +50,13 @@ class HabitanteModel {
         $this->db = $database->connect();
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
-
+    
     // Métodos CRUD
     public function listar(array $filtros = []): array {
         try {
             $sql = "SELECT h.id_habitante,
                h.fecha_ingreso,
-               h.condicion,
+               h.activo,
                p.id_persona,
                p.nombres,
                p.apellidos,
@@ -70,7 +99,7 @@ class HabitanteModel {
         try {
             $sql = "SELECT h.id_habitante,
                h.fecha_ingreso,
-               h.condicion,
+               h.activo,
                p.id_persona,
                p.nombres,
                p.apellidos,
@@ -97,17 +126,15 @@ class HabitanteModel {
             $sql = "INSERT INTO habitante (
                 id_persona,
                 fecha_ingreso,
-                condicion,
+                activo,
                 fecha_registro,
-                fecha_actualizacion,
-                activo)
+                fecha_actualizacion)
                 VALUES (
                 :id_persona,
                 :fecha_ingreso,
-                :condicion,
+                :activo,
                 :fecha_registro,
-                :fecha_actualizacion,
-                :activo)
+                :fecha_actualizacion)
                 RETURNING id_habitante";
             
             $stmt = $this->db->prepare($sql);
@@ -119,10 +146,9 @@ class HabitanteModel {
             
             $stmt->bindValue(':id_persona', $this->id_persona);
             $stmt->bindValue(':fecha_ingreso', $this->fecha_ingreso);
-            $stmt->bindValue(':condicion', $this->condicion);
+            $stmt->bindValue(':activo', $this->activo);
             $stmt->bindValue(':fecha_registro', $this->fecha_registro);
             $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
-            $stmt->bindValue(':activo', $this->activo);
             
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -146,7 +172,8 @@ class HabitanteModel {
             $sql = "UPDATE habitante SET 
                     id_persona = :id_persona,
                     fecha_ingreso = :fecha_ingreso,
-                    condicion = :condicion,
+                    activo = :activo,
+                    fecha_actualizacion = :fecha_actualizacion
                     WHERE id_habitante = :id_habitante AND activo = true
                     RETURNING id_habitante";
             
@@ -154,7 +181,8 @@ class HabitanteModel {
             
             $stmt->bindValue(':id_persona', $this->id_persona);
             $stmt->bindValue(':fecha_ingreso', $this->fecha_ingreso);
-            $stmt->bindValue(':condicion', $this->condicion);
+            $stmt->bindValue(':activo', $this->activo);
+            $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
             $stmt->bindValue(':id_habitante', $this->id_habitante);
             
             $stmt->execute();
@@ -244,19 +272,11 @@ public function contar(array $filtros = []): int {
         $this->fecha_ingreso = $fecha_ingreso;
     }
 
-    public function getCondicion(): ?string {
-        return $this->condicion;
-    }
-
-    public function setCondicion(?string $condicion): void {
-        $this->condicion = $condicion;
-    }
-
-    public function getActivo(): bool {
+    public function getActivo(): ?bool {
         return $this->activo;
     }
 
-    public function setActivo(bool $activo): void {
+    public function setActivo(?bool $activo): void {
         $this->activo = $activo;
     }
 

@@ -2,6 +2,7 @@
 namespace App\controllers;
 
 use App\Core\Response;
+use App\Core\Database;
 
 class PagoController {
     public function index() {

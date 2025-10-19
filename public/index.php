@@ -12,6 +12,7 @@ require_once '../controllers/habitanteController.php';
 require_once '../controllers/pagoController.php';
 require_once '../controllers/authController.php';
 require_once '../controllers/indicadorGestionController.php';
+require_once '../controllers/usuarioController.php';
 
 $router = new App\Core\Router();
 
@@ -56,6 +57,19 @@ $router->get('/indicadores/contar', ['IndicadorGestionController', 'contar']);
 $router->post('/personas', ['PersonaController', 'crear']);
 $router->put('/personas/:id', ['PersonaController', 'actualizar']);
 $router->delete('/personas/:id', ['PersonaController', 'eliminar']);
+// Rutas para usuarios
+$router->post('/usuarios', 'UsuarioController@crear');
+$router->get('/usuarios', 'UsuarioController@listar');
+$router->get('/usuarios/{id}', 'UsuarioController@obtenerPorId');
+$router->put('/usuarios/{id}', 'UsuarioController@actualizar');
+$router->delete('/usuarios/{id}', 'UsuarioController@eliminar');
+
+// Rutas para habitantes
+$router->post('/habitantes', 'HabitanteController@crear');
+$router->get('/habitantes', 'HabitanteController@listar');
+$router->get('/habitantes/{id}', 'HabitanteController@obtenerPorId');
+$router->put('/habitantes/{id}', 'HabitanteController@actualizar');
+$router->delete('/habitantes/{id}', 'HabitanteController@eliminar');
 
 // Rutas protegidas (si decides usar auth)
 $router->get('/dashboard', ['DashboardController', 'index'], ['auth']);

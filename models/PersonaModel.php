@@ -14,9 +14,9 @@ class PersonaModel {
     private string $nombres;
     private string $apellidos;
     private ?string $telefono = null;
-    private ?string $correo = null;
+    private ?string $email = null;
     private ?string $direccion = null;
-    private string $sexo;
+    private string $genero;
     private ?string $estado = null;
     private ?string $fecha_nacimiento = null;
     private bool $activo = true;
@@ -36,9 +36,9 @@ class PersonaModel {
             nombres,
             apellidos,
             telefono,
-            correo,
+            email,
             direccion,
-            sexo,
+            genero,
             estado,
             fecha_nacimiento,
             activo,
@@ -80,9 +80,9 @@ class PersonaModel {
             nombres,
             apellidos,
             telefono,
-            correo,
+            email,
             direccion,
-            sexo,
+            genero,
             estado,
             fecha_nacimiento,
             activo,
@@ -105,9 +105,9 @@ class PersonaModel {
                 nombres,
                 apellidos,
                 cedula,
-                sexo,
+                genero,
                 fecha_nacimiento,
-                correo,
+                email,
                 telefono,
                 direccion,
                 fecha_registro,
@@ -117,9 +117,9 @@ class PersonaModel {
                 :nombres,
                 :apellidos,
                 :cedula,
-                :sexo,
+                :genero,
                 :fecha_nacimiento,
-                :correo,
+                :email,
                 :telefono,
                 :direccion,
                 :fecha_registro,
@@ -136,11 +136,11 @@ class PersonaModel {
             $stmt->bindValue(':apellidos', $this->apellidos);
             $stmt->bindValue(':cedula', $this->cedula);
             $stmt->bindValue(':fecha_nacimiento', $this->fecha_nacimiento);
-            $stmt->bindValue(':correo', $this->correo);
+            $stmt->bindValue(':email', $this->email);
             $stmt->bindValue(':telefono', $this->telefono);
             $stmt->bindValue(':fecha_registro', $this->fecha_registro);
             $stmt->bindValue(':direccion', $this->direccion);
-            $stmt->bindValue(':sexo', $this->sexo);
+            $stmt->bindValue(':genero', $this->genero);
             $stmt->bindValue(':estado', $this->estado);
             $stmt->bindValue(':activo', $this->activo);
         
@@ -165,9 +165,10 @@ class PersonaModel {
                 nombres = :nombres,
                 apellidos = :apellidos,
                 fecha_nacimiento = :fecha_nacimiento,
-                correo = :correo,
+                email = :email,
                 telefono = :telefono,
                 direccion = :direccion,
+                genero = :genero,
                 estado = :estado,
                 fecha_actualizacion = :fecha_actualizacion,
                 WHERE id_persona = :id_persona AND activo = true
@@ -178,9 +179,10 @@ class PersonaModel {
             $stmt->bindValue(':nombres', $this->nombres);
             $stmt->bindValue(':apellidos', $this->apellidos);
             $stmt->bindValue(':fecha_nacimiento', $this->fecha_nacimiento);
-            $stmt->bindValue(':correo', $this->correo);
+            $stmt->bindValue(':email', $this->email);
             $stmt->bindValue(':telefono', $this->telefono);
             $stmt->bindValue(':direccion', $this->direccion);
+            $stmt->bindValue(':genero', $this->genero);
             $stmt->bindValue(':estado', $this->estado);
             $stmt->bindValue(':fecha_actualizacion', $this->fecha_actualizacion);
             $stmt->bindValue(':id_persona', $this->id_persona);
@@ -289,12 +291,12 @@ class PersonaModel {
         $this->telefono = $telefono;
     }
 
-    public function getCorreo(): ?string {
-        return $this->correo;
+    public function getEmail(): ?string {
+        return $this->email;
     }
 
-    public function setCorreo(?string $correo): void {
-        $this->correo = $correo;
+    public function setEmail(?string $email): void {
+        $this->email = $email;
     }
 
     public function getDireccion(): ?string {
@@ -305,12 +307,12 @@ class PersonaModel {
         $this->direccion = $direccion;
     }
 
-    public function getSexo(): ?string {
-        return $this->sexo;
+    public function getGenero(): ?string {
+        return $this->genero;
     }
 
-    public function setSexo(?string $sexo): void {
-        $this->sexo = $sexo;
+    public function setGenero(?string $genero): void {
+        $this->genero = $genero;
     }
 
     public function getEstado(): ?string {
